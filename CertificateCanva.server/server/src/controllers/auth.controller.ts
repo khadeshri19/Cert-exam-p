@@ -4,14 +4,32 @@ import jwt from "jsonwebtoken";
 import { pool } from "../config/db";
 
 export const login = async (req: Request, res: Response) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      message: "Request body missing or invalid JSON",
+    });
+  }
+
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({
+      message: "Email and password are required",
+    });
+  }
+
   const user = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
+  console.log('Fetched user : ', user);
 
-  if (!user.rows.length) return res.status(401).json({ message: "Invalid" });
+  if (!user.rows.length) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
 
+  console.log('Valid user fetched', user.rows[0]);
   const valid = await bcrypt.compare(password, user.rows[0].password);
-  if (!valid) return res.status(401).json({ message: "Invalid" });
+  if (!valid) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
 
   const accessToken = jwt.sign(
     { id: user.rows[0].id, role: user.rows[0].role },
@@ -32,6 +50,7 @@ export const login = async (req: Request, res: Response) => {
 
   res.json({ accessToken, refreshToken });
 };
+
 
 export const refresh = async (req: Request, res: Response) => {
   const { token } = req.body;
