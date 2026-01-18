@@ -1,30 +1,24 @@
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { pool } from "../config/db";
+import {
+  findUserByEmail,
+  saveRefreshToken,
+  findRefreshToken,
+  deleteRefreshTokensByUser,
+  findUserById,
+} from "../repository/auth.repository";
+import { comparePassword } from "../utils/hash";
 
-export const login = async ({ email, password }: any) => {
-  if (!email || !password) {
-    throw new Error("Email and password are required");
-  }
+export const login = async (data: any) => {
+  if (!data) throw new Error("Request body missing");
 
-  const result = await pool.query(
-    `SELECT u.id, u.email, u.password_hash, r.role_name
-     FROM users u
-     JOIN roles r ON u.role_id = r.id
-     WHERE u.email = $1`,
-    [email]
-  );
+  const { email, password } = data;
+  if (!email || !password) throw new Error("Email and password are required");
 
-  if (!result.rows.length) {
-    throw new Error("Invalid credentials");
-  }
+  const user = await findUserByEmail(email);
+  if (!user) throw new Error("Invalid credentials");
 
-  const user = result.rows[0];
-
-  const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) {
-    throw new Error("Invalid credentials");
-  }
+  const valid = await comparePassword(password, user.password_hash);
+  if (!valid) throw new Error("Invalid credentials");
 
   const accessToken = jwt.sign(
     { id: user.id, role: user.role_name },
@@ -38,11 +32,7 @@ export const login = async ({ email, password }: any) => {
     { expiresIn: "7d" }
   );
 
-  await pool.query(
-    `INSERT INTO refresh_tokens (user_id, token, expires_at)
-     VALUES ($1, $2, now() + interval '7 days')`,
-    [user.id, refreshToken]
-  );
+  await saveRefreshToken(user.id, refreshToken);
 
   return { accessToken, refreshToken };
 };
@@ -50,12 +40,8 @@ export const login = async ({ email, password }: any) => {
 export const refresh = async (token: string) => {
   if (!token) throw new Error("Token missing");
 
-  const stored = await pool.query(
-    "SELECT * FROM refresh_tokens WHERE token=$1",
-    [token]
-  );
-
-  if (!stored.rows.length) throw new Error("Forbidden");
+  const stored = await findRefreshToken(token);
+  if (!stored) throw new Error("Forbidden");
 
   const decoded: any = jwt.verify(
     token,
@@ -70,17 +56,9 @@ export const refresh = async (token: string) => {
 };
 
 export const logout = async (userId: string) => {
-  await pool.query(
-    "DELETE FROM refresh_tokens WHERE user_id=$1",
-    [userId]
-  );
+  await deleteRefreshTokensByUser(userId);
 };
 
 export const getUser = async (id: string) => {
-  const result = await pool.query(
-    `SELECT id, email, username, is_active
-     FROM users WHERE id=$1`,
-    [id]
-  );
-  return result.rows[0];
+  return findUserById(id);
 };
