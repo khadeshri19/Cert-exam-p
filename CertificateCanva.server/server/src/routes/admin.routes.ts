@@ -1,17 +1,35 @@
-import { Router } from "express";
-import * as controller from "../controllers/admin.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
-import { authorizeAdmin } from "../middlewares/role.middleware";
+import { Router } from 'express';
+import * as adminController from '../controllers/admin.controller';
+import { authenticate } from '../middlewares/auth.middleware';
+import { requireAdmin } from '../middlewares/role.middleware';
 
 const router = Router();
 
-router.use(authMiddleware);
-router.use(authorizeAdmin("ADMIN"));
+// All routes require authentication and admin role
+router.use(authenticate);
+router.use(requireAdmin);
 
-router.post("/users", controller.createUser);
-router.get("/users", controller.getUsers);
-router.get("/users/:id", controller.getUser);
-router.patch("/users/:id", controller.updateUser);
-router.delete("/users/:id", controller.deleteUser);
+// User management
+router.post('/users', adminController.createUser);
+router.get('/users', adminController.getAllUsers);
+router.get('/users/:id', adminController.getUser);
+router.patch('/users/:id', adminController.updateUser);
+router.delete('/users/:id', adminController.deleteUser);
+
+// Canvas sessions (view only - admins cannot design)
+router.get('/canvas-sessions', adminController.getAllCanvasSessions);
+router.get('/canvas-sessions/active', adminController.getActiveCanvasSessions);
+
+// Activity logs
+router.get('/activity-logs', adminController.getCanvasActivityLogs);
+
+// Certificates
+router.get('/certificates', adminController.getAllCertificates);
+
+// Verification links
+router.get('/verification-links', adminController.getAllVerificationLinks);
+
+// Uploaded files
+router.get('/files', adminController.getAllUploadedFiles);
 
 export default router;

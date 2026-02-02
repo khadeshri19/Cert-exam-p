@@ -36,9 +36,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/auth.controller"));
 const auth_middleware_1 = require("../middlewares/auth.middleware");
+const validate_middleware_1 = require("../middlewares/validate.middleware");
 const router = (0, express_1.Router)();
-router.post("/login", controller.login);
-router.post("/refresh", controller.refresh);
-router.post("/logout", auth_middleware_1.authMiddleware, controller.logout);
-router.get("/users/:id", auth_middleware_1.authMiddleware, controller.getUser);
+// Public routes
+router.post('/login', (0, validate_middleware_1.validate)(validate_middleware_1.loginSchema), controller.login);
+router.post('/refresh', controller.refresh);
+// Protected routes
+router.post('/logout', auth_middleware_1.authMiddleware, controller.logout);
+router.get('/me', auth_middleware_1.authMiddleware, controller.getCurrentUser);
+router.get('/users/:id', auth_middleware_1.authMiddleware, controller.getUser);
 exports.default = router;
+//# sourceMappingURL=auth.routes.js.map

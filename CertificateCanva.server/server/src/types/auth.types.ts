@@ -1,8 +1,18 @@
-import { Request } from "express";
+export interface LoginDTO {
+  email: string;
+  password: string;
+}
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
+export interface TokenPayload {
+  id: string;
+  role?: string;
+}
+
+export interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
 }

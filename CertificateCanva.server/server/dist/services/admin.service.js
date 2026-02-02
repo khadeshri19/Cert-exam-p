@@ -32,34 +32,99 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.getUserById = exports.getUsers = exports.createUser = void 0;
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const adminRepo = __importStar(require("../repository/user.repository"));
+exports.adminService = exports.deleteUser = exports.updateUser = exports.getUserById = exports.getUsers = exports.createUser = void 0;
+const adminRepo = __importStar(require("../repository/admin.repository"));
+const hash_1 = require("../utils/hash");
+const error_middleware_1 = require("../middlewares/error.middleware");
 const createUser = async (data) => {
-    const passwordHash = await bcryptjs_1.default.hash(data.password, 10);
+    // Check if email already exists
+    const emailExists = await adminRepo.checkEmailExists(data.email);
+    if (emailExists) {
+        throw new error_middleware_1.HttpError('Email already exists', 409);
+    }
+    // Check if username already exists
+    const usernameExists = await adminRepo.checkUsernameExists(data.username);
+    if (usernameExists) {
+        throw new error_middleware_1.HttpError('Username already exists', 409);
+    }
+    // Hash password
+    const password_hash = await (0, hash_1.hashPassword)(data.password);
+    // Create user
     return adminRepo.createUser({
-        ...data,
-        password_hash: passwordHash,
+        name: data.name,
+        email: data.email,
+        username: data.username,
+        password_hash,
+        role_id: data.role_id,
     });
 };
 exports.createUser = createUser;
-const getUsers = () => {
-    return adminRepo.getAllUsers();
+const getUsers = async () => {
+    return adminRepo.getUsers();
 };
 exports.getUsers = getUsers;
-const getUserById = (id) => {
-    return adminRepo.getUserById(id);
+const getUserById = async (id) => {
+    const user = await adminRepo.getUserById(id);
+    if (!user) {
+        throw new error_middleware_1.HttpError('User not found', 404);
+    }
+    return user;
 };
 exports.getUserById = getUserById;
-const updateUser = (id, data) => {
-    return adminRepo.updateUserById(id, data);
+const updateUser = async (id, data, requesterId) => {
+    // Check if user exists
+    const existingUser = await adminRepo.getUserById(id);
+    if (!existingUser) {
+        throw new error_middleware_1.HttpError('User not found', 404);
+    }
+    // Check email uniqueness if being updated
+    if (data.email && data.email !== existingUser.email) {
+        const emailExists = await adminRepo.checkEmailExists(data.email, id);
+        if (emailExists) {
+            throw new error_middleware_1.HttpError('Email already exists', 409);
+        }
+    }
+    // Check username uniqueness if being updated
+    if (data.username && data.username !== existingUser.username) {
+        const usernameExists = await adminRepo.checkUsernameExists(data.username, id);
+        if (usernameExists) {
+            throw new error_middleware_1.HttpError('Username already exists', 409);
+        }
+    }
+    // Prepare update data
+    const updateData = { ...data };
+    // Hash password if being updated
+    if (data.password) {
+        updateData.password_hash = await (0, hash_1.hashPassword)(data.password);
+        delete updateData.password;
+    }
+    return adminRepo.updateUser(id, updateData);
 };
 exports.updateUser = updateUser;
-const deleteUser = (id) => {
-    return adminRepo.deleteUserById(id);
+const deleteUser = async (id, requesterId) => {
+    // Prevent self-deletion
+    if (id === requesterId) {
+        throw new error_middleware_1.HttpError('Cannot delete your own account', 400);
+    }
+    // Check if user exists
+    const existingUser = await adminRepo.getUserById(id);
+    if (!existingUser) {
+        throw new error_middleware_1.HttpError('User not found', 404);
+    }
+    const deleted = await adminRepo.deleteUser(id);
+    if (!deleted) {
+        throw new error_middleware_1.HttpError('Failed to delete user', 500);
+    }
+    return { message: 'User deleted successfully' };
 };
 exports.deleteUser = deleteUser;
+// Export as object for backwards compatibility
+exports.adminService = {
+    createUser: exports.createUser,
+    getUsers: exports.getUsers,
+    getUser: exports.getUserById,
+    updateUser: exports.updateUser,
+    deleteUser: exports.deleteUser,
+};
+//# sourceMappingURL=admin.service.js.map

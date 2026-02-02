@@ -33,30 +33,74 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.getUser = exports.getUsers = exports.createUser = void 0;
+exports.getAllAuthorizedCanvases = exports.getAllImages = exports.getAllCanvases = exports.deleteUser = exports.updateUser = exports.getUser = exports.getUsers = exports.createUser = void 0;
 const adminService = __importStar(require("../services/admin.service"));
-const createUser = async (req, res) => {
+const canvasService = __importStar(require("../services/canvas.service"));
+const imageService = __importStar(require("../services/images.service"));
+const error_middleware_1 = require("../middlewares/error.middleware");
+exports.createUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
     const user = await adminService.createUser(req.body);
-    res.status(201).json(user);
-};
-exports.createUser = createUser;
-const getUsers = async (_, res) => {
+    res.status(201).json({
+        success: true,
+        message: 'User created successfully',
+        data: user,
+    });
+});
+exports.getUsers = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
     const users = await adminService.getUsers();
-    res.json(users);
-};
-exports.getUsers = getUsers;
-const getUser = async (req, res) => {
+    res.json({
+        success: true,
+        data: users,
+    });
+});
+exports.getUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
     const user = await adminService.getUserById(req.params.id);
-    res.json(user);
-};
-exports.getUser = getUser;
-const updateUser = async (req, res) => {
-    const user = await adminService.updateUser(req.params.id, req.body);
-    res.json(user);
-};
-exports.updateUser = updateUser;
-const deleteUser = async (req, res) => {
-    await adminService.deleteUser(req.params.id);
+    res.json({
+        success: true,
+        data: user,
+    });
+});
+exports.updateUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
+    const user = await adminService.updateUser(req.params.id, req.body, req.user?.id);
+    res.json({
+        success: true,
+        message: 'User updated successfully',
+        data: user,
+    });
+});
+exports.deleteUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        res.status(401).json({
+            success: false,
+            message: 'Unauthorized',
+        });
+        return;
+    }
+    await adminService.deleteUser(req.params.id, req.user.id);
     res.status(204).send();
-};
-exports.deleteUser = deleteUser;
+});
+// Admin: Get all canvas sessions
+exports.getAllCanvases = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
+    const canvases = await canvasService.getAllCanvases();
+    res.json({
+        success: true,
+        data: canvases,
+    });
+});
+// Admin: Get all images
+exports.getAllImages = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
+    const images = await imageService.getAllImages();
+    res.json({
+        success: true,
+        data: images,
+    });
+});
+// Admin: Get all authorized canvases
+exports.getAllAuthorizedCanvases = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
+    const authorizedCanvases = await canvasService.getAllAuthorizedCanvases();
+    res.json({
+        success: true,
+        data: authorizedCanvases,
+    });
+});
+//# sourceMappingURL=admin.controller.js.map

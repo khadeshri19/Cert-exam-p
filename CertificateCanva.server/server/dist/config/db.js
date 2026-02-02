@@ -23,3 +23,4 @@ exports.pool
     console.error("PostgreSQL connection failed", err.message);
 });
 exports.default = exports.pool;
+//# sourceMappingURL=db.js.map

@@ -1,66 +1,109 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import { jwtConfig } from '../config/jwt';
 import {
   findUserByEmail,
   saveRefreshToken,
   findRefreshToken,
   deleteRefreshTokensByUser,
   findUserById,
-} from "../repository/auth.repository";
-import { comparePassword } from "../utils/hash";
+  deleteRefreshToken,
+} from '../repository/auth.repository';
+import { comparePassword } from '../utils/hash';
+import { LoginDTO, TokenPayload, TokenResponse } from '../types/auth.types';
+import { HttpError } from '../middlewares/error.middleware';
 
-export const login = async (data: any) => {
-  if (!data) throw new Error("Request body missing");
+export const login = async (data: LoginDTO): Promise<TokenResponse> => {
+  if (!data || !data.email || !data.password) {
+    throw new HttpError('Email and password are required', 400);
+  }
 
-  const { email, password } = data;
-  if (!email || !password) throw new Error("Email and password are required");
+  const user = await findUserByEmail(data.email);
+  if (!user) {
+    throw new HttpError('Invalid credentials', 401);
+  }
 
-  const user = await findUserByEmail(email);
-  if (!user) throw new Error("Invalid credentials");
+  if (!user.is_active) {
+    throw new HttpError('Account is deactivated', 403);
+  }
 
-  const valid = await comparePassword(password, user.password_hash);
-  if (!valid) throw new Error("Invalid credentials");
+  const valid = await comparePassword(data.password, user.password_hash);
+  if (!valid) {
+    throw new HttpError('Invalid credentials', 401);
+  }
 
-  // ✅ ACCESS TOKEN
+  // Generate access token
   const accessToken = jwt.sign(
     { id: user.id, role: user.role_name },
-    process.env.JWT_ACCESS_SECRET!,   
-    { expiresIn: "15m" }
+    jwtConfig.accessToken.secret,
+    { expiresIn: '15m' }
   );
 
+  // Generate refresh token
   const refreshToken = jwt.sign(
     { id: user.id },
-    process.env.JWT_REFRESH_SECRET!,
-    { expiresIn: "7d" }
+    jwtConfig.refreshToken.secret,
+    { expiresIn: '7d' }
   );
 
+  // Save refresh token to database
   await saveRefreshToken(user.id, refreshToken);
 
   return { accessToken, refreshToken };
 };
 
-export const refresh = async (token: string) => {
-  if (!token) throw new Error("Token missing");
+export const refresh = async (token: string): Promise<string> => {
+  if (!token) {
+    throw new HttpError('Refresh token is required', 400);
+  }
 
+  // Check if token exists in database
   const stored = await findRefreshToken(token);
-  if (!stored) throw new Error("Forbidden");
+  if (!stored) {
+    throw new HttpError('Invalid or expired refresh token', 403);
+  }
 
+  try {
+    // Verify token
+    const decoded = jwt.verify(token, jwtConfig.refreshToken.secret) as TokenPayload;
 
-  const decoded = jwt.verify(
-    token,
-    process.env.JWT_REFRESH_SECRET!
-  ) as any;
+    // Get user to include role in new token
+    const user = await findUserById(decoded.id);
+    if (!user) {
+      throw new HttpError('User not found', 404);
+    }
 
-  return jwt.sign(
-    { id: decoded.id },
-    process.env.JWT_ACCESS_SECRET!,  
-    { expiresIn: "15m" }
-  );
+    if (!user.is_active) {
+      throw new HttpError('Account is deactivated', 403);
+    }
+
+    // Generate new access token
+    const accessToken = jwt.sign(
+      { id: decoded.id, role: user.role_name },
+      jwtConfig.accessToken.secret,
+      { expiresIn: '15m' }
+    );
+
+    return accessToken;
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      await deleteRefreshToken(token);
+      throw new HttpError('Refresh token expired', 401);
+    }
+    throw error;
+  }
 };
 
-export const logout = async (userId: string) => {
+export const logout = async (userId: string): Promise<void> => {
   await deleteRefreshTokensByUser(userId);
 };
 
 export const getUser = async (id: string) => {
-  return findUserById(id);
+  const user = await findUserById(id);
+  if (!user) {
+    throw new HttpError('User not found', 404);
+  }
+
+  // Remove sensitive data
+  const { password_hash, ...userWithoutPassword } = user;
+  return userWithoutPassword;
 };

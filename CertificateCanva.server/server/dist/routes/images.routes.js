@@ -32,18 +32,19 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const multer_1 = __importDefault(require("multer"));
 const controller = __importStar(require("../controllers/images.controller"));
 const auth_middleware_1 = require("../middlewares/auth.middleware");
-const upload = (0, multer_1.default)({ dest: "uploads/" });
+const multer_1 = require("../config/multer");
 const router = (0, express_1.Router)();
-router.post("/", auth_middleware_1.authMiddleware, upload.single("image"), controller.upload);
-router.get("/", auth_middleware_1.authMiddleware, controller.getAll);
-router.get("/:id", auth_middleware_1.authMiddleware, controller.getOne);
-router.delete("/:id", auth_middleware_1.authMiddleware, controller.remove);
+// All image routes require authentication
+router.use(auth_middleware_1.authMiddleware);
+// Image routes
+router.post('/', multer_1.upload.single('image'), controller.upload);
+router.get('/', controller.getAll);
+router.get('/stats', controller.getStats);
+router.get('/:id', controller.getOne);
+router.delete('/:id', controller.remove);
 exports.default = router;
+//# sourceMappingURL=images.routes.js.map

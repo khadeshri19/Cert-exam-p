@@ -1,16 +1,37 @@
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "./auth.middleware";
+import { Request, Response, NextFunction } from 'express';
+import { HttpError } from './error.middleware';
 
-export const authorizeAdmin = (role: "ADMIN") => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+// Require admin role
+export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    throw new HttpError('Authentication required', 401);
+  }
 
-    if (req.user.role !== role) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
+  if (req.user.role !== 'admin') {
+    throw new HttpError('Admin access required', 403);
+  }
 
-    next();
-  };
+  next();
+};
+
+// Require user role (admins cannot access - for canvas design)
+export const requireUser = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    throw new HttpError('Authentication required', 401);
+  }
+
+  if (req.user.role === 'admin') {
+    throw new HttpError('Admins cannot design canvases. Please use a user account.', 403);
+  }
+
+  next();
+};
+
+// Allow both admin and user
+export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    throw new HttpError('Authentication required', 401);
+  }
+
+  next();
 };

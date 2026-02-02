@@ -36,10 +36,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/canvas.controller"));
 const auth_middleware_1 = require("../middlewares/auth.middleware");
+const validate_middleware_1 = require("../middlewares/validate.middleware");
 const router = (0, express_1.Router)();
-router.post("/session", auth_middleware_1.authMiddleware, controller.create);
-router.get("/session", auth_middleware_1.authMiddleware, controller.getAll);
-router.get("/session/:id", auth_middleware_1.authMiddleware, controller.getOne);
-router.patch("/session/:id", auth_middleware_1.authMiddleware, controller.update);
-router.delete("/session/:id", auth_middleware_1.authMiddleware, controller.remove);
+// All canvas routes require authentication
+router.use(auth_middleware_1.authMiddleware);
+// Canvas session routes
+router.post('/session', (0, validate_middleware_1.validate)(validate_middleware_1.createCanvasSchema), controller.create);
+router.get('/session', controller.getAll);
+router.get('/session/:id', controller.getOne);
+router.patch('/session/:id', controller.update);
+router.delete('/session/:id', controller.remove);
+// Canvas authorization
+router.post('/session/:id/authorize', (0, validate_middleware_1.validate)(validate_middleware_1.authorizeCanvasSchema), controller.authorize);
 exports.default = router;
+//# sourceMappingURL=canvas.routes.js.map

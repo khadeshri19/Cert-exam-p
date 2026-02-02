@@ -88,3 +88,4 @@ const deleteUserById = async (id) => {
     await db_1.default.query(`DELETE FROM users WHERE id = $1`, [id]);
 };
 exports.deleteUserById = deleteUserById;
+//# sourceMappingURL=user.repository.js.map

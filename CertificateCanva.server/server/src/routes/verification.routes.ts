@@ -1,16 +1,13 @@
-import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware";
-import { pool } from "../config/db";
+import { Router } from 'express';
+import * as verificationController from '../controllers/verification.controller';
+import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get("/authorized/:id", authMiddleware, async (req: any, res) => {
-  const result = await pool.query(
-    "SELECT * FROM canva_sessions WHERE id=$1 AND owner_id=$2",
-    [req.params.id, req.user.id]
-  );
+// PUBLIC route - no auth required
+router.get('/:code', verificationController.verifyCertificate);
 
-  res.json({ authorized: result.rows.length > 0 });
-});
+// Protected route - get verification status for user's own canvas
+router.get('/status/:canvasId', authenticate, verificationController.getVerificationStatus);
 
 export default router;

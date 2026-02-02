@@ -33,29 +33,75 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = exports.logout = exports.refresh = exports.login = void 0;
+exports.getCurrentUser = exports.getUser = exports.logout = exports.refresh = exports.login = void 0;
 const authService = __importStar(require("../services/auth.service"));
-const login = async (req, res) => {
-    const tokens = await authService.login(req.body);
-    res.json(tokens);
-};
-exports.login = login;
-const refresh = async (req, res) => {
-    const { refreshToken } = req.body;
+const error_middleware_1 = require("../middlewares/error.middleware");
+exports.login = (0, error_middleware_1.asyncHandler)(async (req, res) => {
+    const { accessToken, refreshToken } = await authService.login(req.body);
+    // Set refresh token as HTTP-only cookie
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    res.json({
+        success: true,
+        message: 'Login successful',
+        data: { accessToken, refreshToken },
+    });
+});
+exports.refresh = (0, error_middleware_1.asyncHandler)(async (req, res) => {
+    const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
     if (!refreshToken) {
-        return res.status(400).json({ message: "Refresh token required" });
+        res.status(400).json({
+            success: false,
+            message: 'Refresh token required',
+        });
+        return;
     }
     const accessToken = await authService.refresh(refreshToken);
-    res.json({ accessToken });
-};
-exports.refresh = refresh;
-const logout = async (req, res) => {
+    res.json({
+        success: true,
+        message: 'Token refreshed successfully',
+        data: { accessToken },
+    });
+});
+exports.logout = (0, error_middleware_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        res.status(401).json({
+            success: false,
+            message: 'Unauthorized',
+        });
+        return;
+    }
     await authService.logout(req.user.id);
-    res.json({ message: "Logged out" });
-};
-exports.logout = logout;
-const getUser = async (req, res) => {
+    // Clear refresh token cookie
+    res.clearCookie('refreshToken');
+    res.json({
+        success: true,
+        message: 'Logged out successfully',
+    });
+});
+exports.getUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
     const user = await authService.getUser(req.params.id);
-    res.json(user);
-};
-exports.getUser = getUser;
+    res.json({
+        success: true,
+        data: user,
+    });
+});
+exports.getCurrentUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        res.status(401).json({
+            success: false,
+            message: 'Unauthorized',
+        });
+        return;
+    }
+    const user = await authService.getUser(req.user.id);
+    res.json({
+        success: true,
+        data: user,
+    });
+});
+//# sourceMappingURL=auth.controller.js.map

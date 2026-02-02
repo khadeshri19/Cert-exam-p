@@ -1,13 +1,30 @@
-import { Router } from "express";
-import * as controller from "../controllers/canvas.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { Router } from 'express';
+import * as canvasController from '../controllers/canvas.controller';
+import { authenticate } from '../middlewares/auth.middleware';
+import { requireUser } from '../middlewares/role.middleware';
 
 const router = Router();
 
-router.post("/session", authMiddleware, controller.create);
-router.get("/session", authMiddleware, controller.getAll);
-router.get("/session/:id", authMiddleware, controller.getOne);
-router.patch("/session/:id", authMiddleware, controller.update);
-router.delete("/session/:id", authMiddleware, controller.remove);
+// All routes require authentication and user role (admins cannot design)
+router.use(authenticate);
+router.use(requireUser);
+
+// Canvas session routes
+router.post('/session', canvasController.createCanvas);
+router.get('/session', canvasController.getAllCanvases);
+router.get('/session/:id', canvasController.getCanvas);
+router.patch('/session/:id', canvasController.updateCanvas);
+router.delete('/session/:id', canvasController.deleteCanvas);
+
+// Save canvas - generates verification link
+router.post('/session/:id/save', canvasController.saveCanvas);
+
+// Export check and logging
+router.get('/session/:id/export', canvasController.checkExport);
+router.post('/session/:id/export', canvasController.logExport);
+
+// Activity tracking
+router.post('/session/:id/activity', canvasController.updateActivity);
+router.post('/session/:id/end', canvasController.endSession);
 
 export default router;
