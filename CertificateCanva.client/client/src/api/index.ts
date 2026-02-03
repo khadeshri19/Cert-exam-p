@@ -59,7 +59,7 @@ api.interceptors.response.use(
     }
 );
 
-// Auth API (per strict spec)
+// Auth API
 export const authApi = {
     login: (email: string, password: string) =>
         api.post('/auth/login', { email, password }),
@@ -67,82 +67,49 @@ export const authApi = {
         api.post('/auth/refresh', { refreshToken }),
     logout: () => api.post('/auth/logout'),
     getCurrentUser: () => api.get('/auth/me'),
-    getUser: (id: string) => api.get(`/auth/users/${id}`),
 };
 
-// Admin API (per strict spec - Protected, Admin only)
+// Admin API
 export const adminApi = {
-    // User management
-    createUser: (data: {
-        name: string;
-        username: string;
-        email: string;
-        password: string;
-        role_id: number;
-    }) => api.post('/admin/users', data),
+    createUser: (data: any) => api.post('/admin/users', data),
     getUsers: () => api.get('/admin/users'),
     getUser: (id: string) => api.get(`/admin/users/${id}`),
     updateUser: (id: string, data: any) => api.patch(`/admin/users/${id}`, data),
     deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
-
-    // Canvas sessions (view only - admins cannot design)
-    getCanvasSessions: () => api.get('/admin/canvas-sessions'),
-    getActiveCanvasSessions: () => api.get('/admin/canvas-sessions/active'),
-
-    // Activity logs
-    getActivityLogs: (canvasSessionId?: string) =>
-        api.get('/admin/activity-logs', { params: { canvasSessionId } }),
-
-    // Certificates
-    getCertificates: () => api.get('/admin/certificates'),
-
-    // Verification links
-    getVerificationLinks: () => api.get('/admin/verification-links'),
-
-    // Uploaded files
-    getUploadedFiles: () => api.get('/admin/files'),
 };
 
-// Canvas API (per strict spec - /api/canva/session)
+// Canvas API (Matches Prompt Rule 6)
 export const canvasApi = {
-    // POST /api/canva/session
     create: (title: string, width?: number, height?: number) =>
-        api.post('/canva/session', { title, width, height }),
+        api.post('/canvas/create', { title, width, height }),
 
-    // GET /api/canva/session
-    getAll: () => api.get('/canva/session'),
+    save: (canvasId: string, data: {
+        canvas_data: any;
+        title: string;
+        holder_name: string;
+        certificate_title: string;
+        issue_date: string;
+        organization_name: string;
+    }) => api.put(`/canvas/save/${canvasId}`, data),
 
-    // GET /api/canva/session/:id
-    getOne: (id: string) => api.get(`/canva/session/${id}`),
+    getOne: (canvasId: string) => api.get(`/canvas/${canvasId}`),
 
-    // PATCH /api/canva/session/:id
-    update: (id: string, data: {
-        canvas_data?: any;
-        title?: string;
-        background_color?: string;
-        background_image?: string;
-    }) => api.patch(`/canva/session/${id}`, data),
+    getAll: () => api.get('/canvas'),
 
-    // DELETE /api/canva/session/:id
-    delete: (id: string) => api.delete(`/canva/session/${id}`),
-
-    // Save canvas - generates verification link
-    save: (id: string, data: { canvas_data: any; title: string; author_name: string }) =>
-        api.post(`/canva/session/${id}/save`, data),
-
-    // Export check and logging
-    checkExport: (id: string) => api.get(`/canva/session/${id}/export`),
-    logExport: (id: string, format: string) =>
-        api.post(`/canva/session/${id}/export`, { format }),
-
-    // Activity tracking
-    updateActivity: (id: string) => api.post(`/canva/session/${id}/activity`),
-    endSession: (id: string) => api.post(`/canva/session/${id}/end`),
+    delete: (canvasId: string) => api.delete(`/canvas/${canvasId}`),
 };
 
-// Images API (per strict spec - /api/images)
+// Certificate API (Matches Prompt Rule 6)
+export const certificateApi = {
+    authorize: (canvasId: string) =>
+        api.post(`/certificate/authorize/${canvasId}`),
+
+    verify: (certificateId: string) =>
+        api.get(`/certificate/verify/${certificateId}`),
+};
+
+// Images API
 export const imagesApi = {
-    // POST /api/images - Upload image
     upload: (file: File) => {
         const formData = new FormData();
         formData.append('image', file);
@@ -150,22 +117,8 @@ export const imagesApi = {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     },
-
-    // GET /api/images - Get all images
     getAll: () => api.get('/images'),
-
-    // GET /api/images/:id - Get single image
-    getOne: (id: string) => api.get(`/images/${id}`),
-
-    // DELETE /api/images/:id - Delete image
     delete: (id: string) => api.delete(`/images/${id}`),
 };
 
-// Verification API (Public - per strict spec - /api/authorized/:id)
-export const verificationApi = {
-    // GET /api/authorized/:id - Public verification (no login required)
-    verify: (id: string) => api.get(`/authorized/${id}`),
-};
-
 export default api;
-

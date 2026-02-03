@@ -1,291 +1,152 @@
-# Certificate Canvas
+# Sarvarth Certificate Platform
 
-A full-stack, role-based Certificate Canvas Management System where admins manage users and authorization, and users can create certificate canvases, upload images, and verify certificates publicly.
+A production-ready full-stack web application for certificate design, generation, authorization, export, and public verification.
 
-## 🚀 Features
+![Sarvarth Logo](CertificateCanva.client/client/public/sarvarth-logo.png)
 
-### Authentication System
-- JWT-based authentication (Access + Refresh tokens)
-- Role-based access control (Admin/User)
-- Secure password hashing with bcrypt
-- Token refresh mechanism
+## Features
 
-### User Management (Admin Only)
-- CRUD operations on users
-- Role assignment (admin/user)
-- User status management (active/inactive)
-- Prevent admin self-deletion
+✅ **Role-based Access Control** - Admin and User roles with granular permissions  
+✅ **Secure Authentication** - JWT-based auth with access and refresh tokens  
+✅ **Canvas Editor** - Fabric.js powered certificate designer  
+✅ **Asset Management** - Upload and manage images for certificates  
+✅ **Certificate Export** - Export as PNG, JPG, SVG formats  
+✅ **Public Verification** - Verify certificates without authentication  
+✅ **Modern UI** - Clean, responsive design with Sarvarth branding  
 
-### Canvas Management
-- Create canvas sessions
-- Update canvas metadata
-- Authorize certificates
-- Delete canvas sessions
-- Track authorization status
+## Tech Stack
 
-### Image Management
-- Upload images (PNG, JPG, PDF, SVG)
-- File size restriction (max 5MB)
-- Associate images with users
-- Delete images securely
+### Frontend
+- React.js + TypeScript
+- React Router
+- Tailwind CSS
+- Fabric.js (Canvas)
+- Axios
 
-### Certificate Verification
-- Public verification endpoint
-- Verify certificate using canvas session ID
-- Display author name, title, date, and user info
+### Backend
+- Node.js + Express.js + TypeScript
+- PostgreSQL (Raw SQL - no ORM)
+- JWT Authentication
+- bcrypt password hashing
 
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | React.js + TypeScript |
-| Backend | Express.js + TypeScript |
-| Database | PostgreSQL (RAW SQL only, NO ORM) |
-| Authentication | JWT (Access + Refresh tokens) |
-| File Uploads | Multer (local storage) |
-| Testing | Jest + Supertest |
-
-## 📁 Project Structure
-
-```
-certificate-canvas/
-├── CertificateCanva.client/
-│   └── client/
-│       ├── public/
-│       ├── src/
-│       │   ├── api/           # API client
-│       │   ├── components/    # Reusable components
-│       │   ├── context/       # React contexts
-│       │   ├── pages/         # Page components
-│       │   ├── App.tsx        # Main app with routing
-│       │   ├── index.css      # Global styles
-│       │   └── main.tsx       # Entry point
-│       ├── package.json
-│       └── vite.config.ts
-│
-├── CertificateCanva.server/
-│   └── server/
-│       ├── src/
-│       │   ├── config/        # Database & Multer config
-│       │   ├── controllers/   # Route controllers
-│       │   ├── middlewares/   # Auth & validation
-│       │   ├── routes/        # API routes
-│       │   ├── services/      # Business logic
-│       │   ├── types/         # TypeScript types
-│       │   ├── utils/         # Utilities
-│       │   ├── script/        # DB setup scripts
-│       │   ├── app.ts         # Express app
-│       │   └── server.ts      # Server entry
-│       ├── tests/             # Test files
-│       ├── uploads/           # Uploaded files
-│       └── package.json
-│
-├── database.sql               # Full database schema
-└── README.md
-```
-
-## 🗄️ Database Schema
-
-The system uses PostgreSQL with the following tables:
-
-- **roles** - User roles (admin, user)
-- **users** - User accounts with credentials
-- **canvas_sessions** - Canvas/certificate sessions
-- **authorized_canvases** - Authorized certificate details
-- **images** - Uploaded image metadata
-
-## 🔗 API Endpoints
-
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | User login |
-| POST | `/api/auth/refresh` | Refresh access token |
-| POST | `/api/auth/logout` | User logout |
-| GET | `/api/auth/me` | Get current user |
-| GET | `/api/auth/users/:id` | Get user by ID |
-
-### Admin (Admin Only)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/admin/users` | Create user |
-| GET | `/api/admin/users` | Get all users |
-| GET | `/api/admin/users/:id` | Get user by ID |
-| PATCH | `/api/admin/users/:id` | Update user |
-| DELETE | `/api/admin/users/:id` | Delete user |
-| GET | `/api/admin/canvases` | Get all canvases |
-| GET | `/api/admin/images` | Get all images |
-| GET | `/api/admin/authorized` | Get authorized certs |
-
-### Canvas
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/canva/session` | Create canvas session |
-| GET | `/api/canva/session` | Get user's canvases |
-| GET | `/api/canva/session/:id` | Get canvas by ID |
-| PATCH | `/api/canva/session/:id` | Update canvas |
-| DELETE | `/api/canva/session/:id` | Delete canvas |
-| POST | `/api/canva/session/:id/authorize` | Authorize canvas |
-
-### Images
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/images` | Upload image |
-| GET | `/api/images` | Get user's images |
-| GET | `/api/images/:id` | Get image by ID |
-| DELETE | `/api/images/:id` | Delete image |
-| GET | `/api/images/stats` | Get image stats |
-
-### Verification (Public)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/authorized/:id` | Verify certificate |
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL 14+
-- npm or yarn
 
-### Database Setup
+### 1. Setup Database
 
-1. Create the database:
-```sql
-CREATE DATABASE certificate_canvas;
-```
-
-2. Run the schema:
 ```bash
-psql -d certificate_canvas -f database.sql
-```
+# Create database
+psql -U postgres -c "CREATE DATABASE certificate_canvas;"
 
-Or run the setup script:
-```bash
+# Run schema
 cd CertificateCanva.server/server
 npm run db:setup
+npm run db:seed
 ```
 
-### Backend Setup
+### 2. Configure Environment
 
 ```bash
+# Backend
 cd CertificateCanva.server/server
-
-# Install dependencies
-npm install
-
-# Configure environment variables
 cp .env.example .env
 # Edit .env with your database credentials
-
-# Seed admin user
-npm run db:seed
-
-# Start development server
-npm run dev
 ```
 
-### Frontend Setup
+### 3. Install Dependencies
 
 ```bash
-cd CertificateCanva.client/client
-
-# Install dependencies
+# Backend
+cd CertificateCanva.server/server
 npm install
 
-# Start development server
+# Frontend
+cd CertificateCanva.client/client
+npm install
+```
+
+### 4. Start Development Servers
+
+```bash
+# Terminal 1 - Backend (Port 4000)
+cd CertificateCanva.server/server
+npm run dev
+
+# Terminal 2 - Frontend (Port 5173)
+cd CertificateCanva.client/client
 npm run dev
 ```
 
-### Environment Variables
+### 5. Access Application
 
-Create a `.env` file in the server directory:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:4000
 
-```env
-PORT=4000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/certificate_canvas
-
-JWT_ACCESS_SECRET=your-access-secret-key
-JWT_REFRESH_SECRET=your-refresh-secret-key
-
-ADMIN_EMAIL=admin@example.com
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=AdminPassword@123
-```
-
-## 🧪 Testing
-
-```bash
-cd CertificateCanva.server/server
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-## 🔒 Security Features
-
-- JWT token authentication
-- Access & Refresh token pattern
-- Password hashing with bcrypt (10 rounds)
-- Role-based access control
-- SQL injection prevention (parameterized queries)
-- File type and size validation
-- CORS configuration
-- Admin route protection
-
-## 📱 Frontend Pages
-
-1. **Login** - User authentication
-2. **Dashboard** - Overview with stats
-3. **My Canvases** - Canvas management
-4. **My Images** - Image upload/management
-5. **Verify Certificate** - Public verification
-6. **Admin Dashboard** - System statistics
-7. **User Management** - Admin user CRUD
-
-## 🎨 Design Features
-
-- Dark theme with glassmorphism
-- Gradient accents
-- Smooth animations
-- Responsive design
-- Modern typography (Inter font)
-- Lucide icons
-
-## 📝 Default Admin Credentials
-
-After running the seed script:
+### Default Credentials
 
 ```
-Email: TestAdmin@test.com
-Username: systemtest
-Password: AdminTest@123
+Admin: admin / admin123
+User: user / user123
 ```
 
-## 🏃 Running in Production
+## Project Structure
 
-### Backend
-```bash
-npm run build
-npm start
+```
+sarvarth_project/
+├── CertificateCanva.client/
+│   └── client/
+│       └── src/
+│           ├── api/           # API client
+│           ├── components/    # Reusable components
+│           ├── context/       # Auth context
+│           ├── hooks/         # Custom hooks
+│           ├── pages/         # Page components
+│           └── App.tsx        # Main app
+│
+├── CertificateCanva.server/
+│   └── server/
+│       └── src/
+│           ├── controllers/   # Route handlers
+│           ├── middlewares/   # Auth, error handling
+│           ├── repository/    # Database queries
+│           ├── routes/        # API routes
+│           ├── services/      # Business logic
+│           └── script/        # DB setup scripts
+│
+└── PRD.md                     # Product Requirements
 ```
 
-### Frontend
-```bash
-npm run build
-npm run preview
-```
+## API Endpoints
 
-## 📄 License
+### Auth
+- `POST /api/auth/login` - Login
+- `POST /api/auth/refresh` - Refresh token
+- `POST /api/auth/logout` - Logout
 
-This project is for educational purposes.
+### Admin (Protected)
+- `GET /api/admin/users` - List users
+- `POST /api/admin/users` - Create user
+- `PATCH /api/admin/users/:id` - Update user
+- `DELETE /api/admin/users/:id` - Delete user
 
----
+### Canvas (Protected)
+- `GET /api/canva/session` - List canvases
+- `POST /api/canva/session` - Create canvas
+- `GET /api/canva/session/:id` - Get canvas
+- `PATCH /api/canva/session/:id` - Update canvas
+- `DELETE /api/canva/session/:id` - Delete canvas
 
-Built with ❤️ using React, Express, TypeScript, and PostgreSQL
+### Images (Protected)
+- `GET /api/images` - List images
+- `POST /api/images` - Upload image
+- `DELETE /api/images/:id` - Delete image
+
+### Verification (Public)
+- `GET /api/authorized/:id` - Verify certificate
+
+## License
+
+MIT License - See LICENSE file for details.

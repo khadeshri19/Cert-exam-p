@@ -1,0 +1,18 @@
+import { ChevronsLeft } from "lucide-react";
+
+interface ToolSidebarCloseProps {
+    onClick: () => void;
+};
+
+export const ToolSidebarClose = ({
+    onClick,
+}: ToolSidebarCloseProps) => {
+    return (
+        <button
+            onClick={onClick}
+            className="absolute -right-7 h-16 bg-white top-1/2 transform -translate-y-1/2 flex items-center justify-center rounded-r-xl px-1.5 border-r border-y border-gray-200 shadow-sm group z-[50] hover:bg-gray-50 transition-colors"
+        >
+            <ChevronsLeft className="size-4 text-gray-400 group-hover:text-gray-600 transition" />
+        </button>
+    );
+};

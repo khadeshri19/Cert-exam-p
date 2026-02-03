@@ -1,30 +1,28 @@
 import { Router } from 'express';
 import * as canvasController from '../controllers/canvas.controller';
 import { authenticate } from '../middlewares/auth.middleware';
-import { requireUser } from '../middlewares/role.middleware';
 
 const router = Router();
 
-// All routes require authentication and user role (admins cannot design)
+// All canvas routes require authentication
 router.use(authenticate);
-router.use(requireUser);
 
-// Canvas session routes
-router.post('/session', canvasController.createCanvas);
-router.get('/session', canvasController.getAllCanvases);
-router.get('/session/:id', canvasController.getCanvas);
-router.patch('/session/:id', canvasController.updateCanvas);
-router.delete('/session/:id', canvasController.deleteCanvas);
+// POST /api/canvas/create
+router.post('/create', canvasController.createCanvas);
 
-// Save canvas - generates verification link
-router.post('/session/:id/save', canvasController.saveCanvas);
+// PUT /api/canvas/save/:canvasId
+router.put('/save/:canvasId', canvasController.saveCanvas);
 
-// Export check and logging
-router.get('/session/:id/export', canvasController.checkExport);
-router.post('/session/:id/export', canvasController.logExport);
+// GET /api/canvas/:canvasId
+router.get('/:canvasId', canvasController.getCanvas);
 
-// Activity tracking
-router.post('/session/:id/activity', canvasController.updateActivity);
-router.post('/session/:id/end', canvasController.endSession);
+// GET /api/canvas (all for user)
+router.get('/', canvasController.getAllCanvases);
+
+// DELETE /api/canvas/:canvasId
+router.delete('/:canvasId', canvasController.deleteCanvasFinal);
+
+// POST /api/canvas/:canvasId/export
+router.post('/:canvasId/export', canvasController.exportCanvas);
 
 export default router;
