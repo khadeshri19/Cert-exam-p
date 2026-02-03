@@ -1,0 +1,241 @@
+/* ==========================================
+   CANVAS EDITOR STYLES
+   Matches Reference Image 3 - Canvas Editor
+   ========================================== */
+
+.editor-container {
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-page);
+}
+
+/* Left Tools Sidebar */
+.editor-tools {
+    width: 60px;
+    background-color: var(--color-white);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-sm);
+}
+
+.tool-button {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--color-gray-500);
+    transition: all var(--transition-fast);
+    margin-bottom: var(--spacing-xs);
+}
+
+.tool-button:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-700);
+}
+
+.tool-button.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.tool-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Right Metadata Panel */
+.editor-metadata {
+    width: 280px;
+    background-color: var(--color-white);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.metadata-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.metadata-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.metadata-form {
+    flex: 1;
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.metadata-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.metadata-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+}
+
+.metadata-input {
+    padding: 10px 12px;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.metadata-input:focus {
+    outline: none;
+    border-color: var(--color-teal);
+}
+
+.generate-button {
+    padding: 12px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: auto;
+}
+
+.generate-button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* Certificate ID Display */
+.certificate-id-display {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.certificate-id-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+    margin-bottom: var(--spacing-xs);
+}
+
+.certificate-id-value {
+    font-size: var(--font-size-sm);
+    font-family: monospace;
+    color: var(--color-gray-800);
+    padding: var(--spacing-sm);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-sm);
+    word-break: break-all;
+}
+
+/* Canvas Workspace */
+.editor-workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-navbar {
+    height: 56px;
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-md);
+}
+
+.editor-nav-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.editor-nav-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.export-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 8px 16px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.export-button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.editor-canvas-area {
+    flex: 1;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+.editor-footer {
+    height: 40px;
+    background-color: var(--color-white);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--spacing-md);
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.zoom-button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-white);
+    cursor: pointer;
+}
+
+.zoom-button:hover {
+    background-color: var(--color-gray-50);
+}
+
+.zoom-value {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    min-width: 50px;
+    text-align: center;
+}

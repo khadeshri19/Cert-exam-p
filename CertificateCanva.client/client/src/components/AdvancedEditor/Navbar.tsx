@@ -1,14 +1,9 @@
 import {
-    Download,
-    MousePointerClick,
-    Redo2,
-    Undo2,
-    ChevronLeft,
-    FileImage,
-    FileText,
     CheckCircle,
-    ExternalLink,
-    ShieldCheck
+    ShieldCheck,
+    ChevronLeft,
+    Undo2,
+    Redo2
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 import { certificateApi } from "../../api";
 
 import type { ActiveTool, Editor } from "./types";
-import { cn } from "../../lib/utils";
+import SarvarthLogo from "../common/SarvarthLogo";
 
 interface NavbarProps {
     editor: Editor | undefined;
@@ -27,22 +22,12 @@ interface NavbarProps {
     isAuthorized?: boolean;
 };
 
-const SarvarthLogo: React.FC = () => (
-    <div className="flex items-center">
-        <img
-            src="/sarvarth-logo.png"
-            alt="Sarvarth"
-            className="h-8 object-contain"
-        />
-    </div>
-);
-
 export const Navbar = ({
     editor,
-    activeTool,
-    onChangeActiveTool,
+    activeTool: _activeTool,
+    onChangeActiveTool: _onChangeActiveTool,
     id,
-    certificateId,
+    certificateId: _certificateId,
     isAuthorized: initialIsAuthorized
 }: NavbarProps) => {
     const navigate = useNavigate();
@@ -84,142 +69,72 @@ export const Navbar = ({
         }
     };
 
-    const handleVerifyClick = () => {
-        if (!certificateId) {
-            alert("Please save the certificate first to generate a Verification ID");
-            return;
-        }
-        window.open(`/verify/${certificateId}`, "_blank");
-    };
 
     return (
-        <nav className="w-full flex items-center px-4 h-[60px] gap-x-6 border-b bg-white shadow-sm">
-            <button
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-                <ChevronLeft className="size-5" />
-            </button>
+        <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+            {/* Left */}
+            <div className="editor-nav-left">
+                <button onClick={() => navigate('/user/dashboard')} className="btn-outline" style={{ padding: '8px', border: 'none' }}>
+                    <ChevronLeft size={20} />
+                </button>
+                <SarvarthLogo size="md" />
 
-            <div className="flex items-center gap-x-3">
-                <SarvarthLogo />
-                <div className="h-6 w-px bg-gray-200" />
-                <span className="text-sm font-medium text-gray-600">Canvas Editor</span>
-            </div>
-
-            <div className="flex-1 flex items-center gap-x-2">
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-50">
-                    <button
-                        className={cn(
-                            "p-2 rounded-md transition-colors",
-                            activeTool === "select"
-                                ? "bg-white shadow-sm text-gray-800"
-                                : "text-gray-500 hover:text-gray-700"
-                        )}
-                        onClick={() => onChangeActiveTool("select")}
-                        title="Select"
-                    >
-                        <MousePointerClick className="size-4" />
+                <div style={{ display: 'flex', gap: 5, marginLeft: 20 }}>
+                    <button className="tool-button" onClick={() => editor?.onUndo()}>
+                        <Undo2 size={18} />
                     </button>
-                    <button
-                        disabled={!editor?.canUndo()}
-                        className="p-2 text-gray-500 hover:text-gray-700 rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        onClick={() => editor?.onUndo()}
-                        title="Undo"
-                    >
-                        <Undo2 className="size-4" />
-                    </button>
-                    <button
-                        disabled={!editor?.canRedo()}
-                        className="p-2 text-gray-500 hover:text-gray-700 rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        onClick={() => editor?.onRedo()}
-                        title="Redo"
-                    >
-                        <Redo2 className="size-4" />
+                    <button className="tool-button" onClick={() => editor?.onRedo()}>
+                        <Redo2 size={18} />
                     </button>
                 </div>
-
-                {isAuthorized && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-100 animate-in fade-in zoom-in duration-300">
-                        <ShieldCheck className="size-4" />
-                        <span className="text-xs font-semibold">Authorized</span>
-                    </div>
-                )}
             </div>
 
-            <div className="flex items-center gap-x-3">
-                {/* 2.C Verification Button */}
+            {/* Right */}
+            <div className="editor-nav-right">
                 <button
-                    onClick={handleVerifyClick}
-                    className="flex items-center gap-x-2 px-4 py-2 hover:bg-gray-50 text-gray-700 rounded-xl text-sm font-medium border border-gray-200 transition-all"
+                    className="export-button"
+                    onClick={handleAuthorize}
+                    disabled={isAuthorized || isAuthorizing}
+                    style={{ backgroundColor: isAuthorized ? '#10b981' : undefined }}
                 >
-                    <ExternalLink className="size-4" />
-                    Verify Certificate
+                    {isAuthorized ? <CheckCircle size={16} /> : <ShieldCheck size={16} />}
+                    {isAuthorized ? 'Authorized' : 'Authorize'}
                 </button>
 
-                {/* 2.D Admin Authorize Button */}
-                {isAdmin && !isAuthorized && (
-                    <button
-                        onClick={handleAuthorize}
-                        disabled={isAuthorizing}
-                        className="flex items-center gap-x-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
-                    >
-                        <CheckCircle className="size-4" />
-                        {isAuthorizing ? "Authorizing..." : "Authorize"}
+                <div style={{ position: 'relative' }}>
+                    <button className="export-button" onClick={() => setShowExportMenu(!showExportMenu)}>
+                        Download
                     </button>
-                )}
-
-                <div className="relative">
-                    <button
-                        onClick={() => setShowExportMenu(!showExportMenu)}
-                        className="flex items-center gap-x-2 px-5 py-2.5 text-white rounded-xl font-medium transition-all hover:shadow-lg"
-                        style={{ backgroundColor: '#ee7158' }}
-                    >
-                        Export
-                        <Download className="size-4" />
-                    </button>
-
                     {showExportMenu && (
-                        <>
-                            <div
-                                className="fixed inset-0 z-40"
-                                onClick={() => setShowExportMenu(false)}
-                            />
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
-                                <button
-                                    onClick={() => handleExport('png')}
-                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    <FileImage className="size-4 text-blue-500" />
-                                    Export as PNG
-                                </button>
-                                <button
-                                    onClick={() => handleExport('jpg')}
-                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    <FileImage className="size-4 text-green-500" />
-                                    Export as JPG
-                                </button>
-                                <button
-                                    onClick={() => handleExport('svg')}
-                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    <FileText className="size-4 text-purple-500" />
-                                    Export as SVG
-                                </button>
-                                <div className="border-t border-gray-100" />
-                                <button
-                                    onClick={() => handleExport('json')}
-                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    <FileText className="size-4 text-gray-500" />
-                                    Save Project
-                                </button>
-                            </div>
-                        </>
+                        <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            right: 0,
+                            marginTop: 5,
+                            backgroundColor: 'white',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                            borderRadius: 4,
+                            padding: 5,
+                            zIndex: 100,
+                            minWidth: 120,
+                            border: '1px solid #eee'
+                        }}>
+                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('png')}>
+                                PNG
+                            </button>
+                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('jpg')}>
+                                JPG
+                            </button>
+                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('svg')}>
+                                SVG
+                            </button>
+                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('json')}>
+                                JSON
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
-        </nav>
+        </div>
     );
 };

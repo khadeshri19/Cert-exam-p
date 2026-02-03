@@ -11,8 +11,6 @@ import type {
     Editor,
 } from "./types";
 
-import { cn } from "../../lib/utils";
-
 interface ToolbarProps {
     editor: Editor | undefined;
     activeTool: ActiveTool;
@@ -31,74 +29,94 @@ export const Toolbar = ({
 
     if (editor?.selectedObjects.length === 0) {
         return (
-            <div className="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2" />
+            <div style={{ height: 56, borderBottom: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', alignItems: 'center', padding: '8px' }} />
         );
     }
 
     const fillColor = editor?.getActiveFillColor();
     const strokeColor = editor?.getActiveStrokeColor();
 
+    const buttonStyle = {
+        padding: '8px',
+        borderRadius: '4px',
+        border: 'none',
+        background: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    };
+
+    const activeStyle = {
+        backgroundColor: '#f3f4f6'
+    };
+
     return (
-        <div className="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2">
+        <div style={{ height: 56, borderBottom: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 8 }}>
             {!isImage && (
                 <button
                     onClick={() => onChangeActiveTool("fill")}
-                    className={cn(
-                        "p-2 hover:bg-slate-100 rounded-md",
-                        activeTool === "fill" && "bg-slate-100"
-                    )}
+                    style={{ ...buttonStyle, ...(activeTool === "fill" ? activeStyle : {}) }}
                 >
                     <div
-                        className="rounded-sm size-4 border"
-                        style={{ backgroundColor: fillColor }}
+                        style={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: 2,
+                            border: '1px solid #ccc',
+                            backgroundColor: fillColor
+                        }}
                     />
                 </button>
             )}
             {!isText && (
                 <button
                     onClick={() => onChangeActiveTool("stroke-color")}
-                    className={cn(
-                        "p-2 hover:bg-slate-100 rounded-md",
-                        activeTool === "stroke-color" && "bg-slate-100"
-                    )}
+                    style={{ ...buttonStyle, ...(activeTool === "stroke-color" ? activeStyle : {}) }}
                 >
                     <div
-                        className="rounded-sm size-4 border-2 bg-white"
-                        style={{ borderColor: strokeColor }}
+                        style={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: 2,
+                            border: '2px solid',
+                            borderColor: strokeColor,
+                            backgroundColor: 'white'
+                        }}
                     />
                 </button>
             )}
-            <div className="h-6 w-[1px] bg-slate-200 mx-2" />
+            <div style={{ height: 24, width: 1, backgroundColor: '#e5e7eb', margin: '0 8px' }} />
             <button
                 onClick={() => editor?.bringForward()}
-                className="p-2 hover:bg-slate-100 rounded-md"
+                style={buttonStyle}
                 title="Bring Forward"
             >
-                <ArrowUp className="size-4" />
+                <ArrowUp size={16} />
             </button>
             <button
                 onClick={() => editor?.sendBackwards()}
-                className="p-2 hover:bg-slate-100 rounded-md"
+                style={buttonStyle}
                 title="Send Backwards"
             >
-                <ArrowDown className="size-4" />
+                <ArrowDown size={16} />
             </button>
             <button
                 onClick={() => {
                     editor?.onCopy();
                     editor?.onPaste();
                 }}
-                className="p-2 hover:bg-slate-100 rounded-md"
+                style={buttonStyle}
                 title="Duplicate"
             >
-                <Copy className="size-4" />
+                <Copy size={16} />
             </button>
             <button
                 onClick={() => editor?.delete()}
-                className="p-2 hover:bg-slate-100 rounded-md text-red-600 ml-auto"
+                style={{ ...buttonStyle, color: '#dc2626', marginLeft: 'auto' }}
                 title="Delete"
             >
-                <Trash className="size-4" />
+                <Trash size={16} />
             </button>
         </div>
     );

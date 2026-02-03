@@ -207,6 +207,7 @@ export interface Editor {
     saveJpg: () => void;
     saveSvg: () => void;
     saveJson: () => void;
+    getJson: () => string;
     loadJson: (json: string) => void;
     onUndo: () => void;
     onRedo: () => void;

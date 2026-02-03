@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
-import { User, FileText, Calendar, Building2 } from "lucide-react";
+import { User, FileText, Calendar, Building2, Copy, Check } from "lucide-react";
 
 import type { ActiveTool, Editor } from "../types";
-import { ToolSidebarClose } from "../ToolSidebarClose";
-import { ToolSidebarHeader } from "../ToolSidebarHeader";
-import { ScrollArea } from "../ScrollArea";
-
-import { cn } from "../../../lib/utils";
 
 interface MetadataSidebarProps {
     editor: Editor | undefined;
@@ -19,16 +14,23 @@ interface MetadataSidebarProps {
         organization_name: string;
     };
     onMetadataChange: (metadata: any) => void;
+    certificateId?: string;
+    onGenerate?: () => void;
+    isSaving?: boolean;
 }
 
 export const MetadataSidebar = ({
-    editor,
-    activeTool,
-    onChangeActiveTool,
+    editor: _editor,
+    activeTool: _activeTool,
+    onChangeActiveTool: _onChangeActiveTool,
     metadata,
-    onMetadataChange
+    onMetadataChange,
+    certificateId,
+    onGenerate,
+    isSaving
 }: MetadataSidebarProps) => {
     const [localMetadata, setLocalMetadata] = useState(metadata);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         setLocalMetadata(metadata);
@@ -40,131 +42,95 @@ export const MetadataSidebar = ({
         onMetadataChange(updated);
     };
 
-    const onClose = () => {
-        onChangeActiveTool("select");
-    };
-
-    const addToCanvas = (type: 'holder' | 'title' | 'date' | 'org' | 'id') => {
-        let text = "";
-
-        switch (type) {
-            case 'holder': text = localMetadata.holder_name || "Holder Name"; break;
-            case 'title': text = localMetadata.certificate_title || "Certificate Title"; break;
-            case 'date': text = localMetadata.issue_date || "Issue Date"; break;
-            case 'org': text = localMetadata.organization_name || "Organization Name"; break;
-            case 'id': text = "Certificate ID: sarv-xxxx-xxxx"; break;
+    const handleCopyId = () => {
+        if (certificateId) {
+            navigator.clipboard.writeText(certificateId);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
         }
-
-        editor?.addText(text, {
-            fontSize: type === 'title' ? 48 : 24,
-            fontWeight: type === 'title' ? 'bold' : 'normal',
-            fill: '#3d5a5a'
-        });
     };
 
     return (
-        <aside
-            className={cn(
-                "bg-white relative border-r border-gray-200 z-[40] w-[300px] h-full flex flex-col",
-                activeTool === "metadata" ? "visible" : "hidden"
-            )}
-        >
-            <ToolSidebarHeader
-                title="Certificate Info"
-                description="Manage certificate details and metadata"
-            />
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div className="metadata-header">
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#333', margin: 0 }}>Certificate Info</h3>
+                <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>Enter certificate details</p>
+            </div>
 
-            <ScrollArea>
-                <div className="p-4 space-y-6">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2">
-                                <User size={14} /> Holder Name
-                            </label>
-                            <input
-                                value={localMetadata.holder_name}
-                                onChange={(e) => handleChange('holder_name', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
-                                placeholder="Recipient Full Name"
-                            />
-                            <button
-                                onClick={() => addToCanvas('holder')}
-                                className="text-[10px] text-[#ee7158] hover:underline"
-                            >
-                                + Add to Canvas
-                            </button>
-                        </div>
+            <div className="metadata-form" style={{ overflowY: 'auto' }}>
+                <div className="metadata-field">
+                    <label className="metadata-label">
+                        <User size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                        Name
+                    </label>
+                    <input
+                        className="metadata-input"
+                        value={localMetadata.holder_name}
+                        onChange={(e) => handleChange('holder_name', e.target.value)}
+                        placeholder="Holder Name"
+                    />
+                </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2">
-                                <FileText size={14} /> Certificate Title
-                            </label>
-                            <input
-                                value={localMetadata.certificate_title}
-                                onChange={(e) => handleChange('certificate_title', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
-                                placeholder="e.g. Certificate of Excellence"
-                            />
-                            <button
-                                onClick={() => addToCanvas('title')}
-                                className="text-[10px] text-[#ee7158] hover:underline"
-                            >
-                                + Add to Canvas
-                            </button>
-                        </div>
+                <div className="metadata-field">
+                    <label className="metadata-label">
+                        <FileText size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                        Title
+                    </label>
+                    <input
+                        className="metadata-input"
+                        value={localMetadata.certificate_title}
+                        onChange={(e) => handleChange('certificate_title', e.target.value)}
+                        placeholder="Certificate Title"
+                    />
+                </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2">
-                                <Calendar size={14} /> Issue Date
-                            </label>
-                            <input
-                                type="date"
-                                value={localMetadata.issue_date}
-                                onChange={(e) => handleChange('issue_date', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
-                            />
-                            <button
-                                onClick={() => addToCanvas('date')}
-                                className="text-[10px] text-[#ee7158] hover:underline"
-                            >
-                                + Add to Canvas
-                            </button>
-                        </div>
+                <div className="metadata-field">
+                    <label className="metadata-label">
+                        <Calendar size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                        Date
+                    </label>
+                    <input
+                        type="date"
+                        className="metadata-input"
+                        value={localMetadata.issue_date}
+                        onChange={(e) => handleChange('issue_date', e.target.value)}
+                    />
+                </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2">
-                                <Building2 size={14} /> Organization
-                            </label>
-                            <input
-                                value={localMetadata.organization_name}
-                                onChange={(e) => handleChange('organization_name', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
-                                placeholder="e.g. Sarvarth Academy"
-                            />
-                            <button
-                                onClick={() => addToCanvas('org')}
-                                className="text-[10px] text-[#ee7158] hover:underline"
-                            >
-                                + Add to Canvas
-                            </button>
-                        </div>
+                <div className="metadata-field">
+                    <label className="metadata-label">
+                        <Building2 size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                        Organization
+                    </label>
+                    <input
+                        className="metadata-input"
+                        value={localMetadata.organization_name}
+                        onChange={(e) => handleChange('organization_name', e.target.value)}
+                        placeholder="Organization Name"
+                    />
+                </div>
 
-                        <div className="pt-4 border-t">
-                            <button
-                                onClick={() => addToCanvas('id')}
-                                className="w-full py-2 bg-gray-50 border border-dashed border-gray-300 rounded-md text-xs text-gray-500 hover:bg-gray-100 transition-colors"
-                            >
-                                + Add Certificate ID Placeholder
+                {certificateId && (
+                    <div className="certificate-id-display">
+                        <label className="certificate-id-label">Certificate ID</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <code className="certificate-id-value" style={{ flex: 1 }}>{certificateId}</code>
+                            <button onClick={handleCopyId} className="btn-outline" style={{ padding: 6 }}>
+                                {copied ? <Check size={14} /> : <Copy size={14} />}
                             </button>
-                            <p className="text-[10px] text-gray-400 mt-2 text-center">
-                                * The actual ID will be generated upon saving.
-                            </p>
                         </div>
                     </div>
-                </div>
-            </ScrollArea>
+                )}
 
-            <ToolSidebarClose onClick={onClose} />
-        </aside>
+                <button
+                    className="generate-button"
+                    onClick={onGenerate}
+                    disabled={isSaving}
+                    style={{ marginTop: 'auto', opacity: isSaving ? 0.7 : 1 }}
+                >
+                    {isSaving ? 'GENERATING...' : 'GENERATE'}
+                </button>
+            </div>
+        </div>
     );
 };

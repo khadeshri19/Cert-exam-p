@@ -1,0 +1,219 @@
+/* ==========================================
+   VERIFICATION PAGE STYLES
+   Matches Reference Image 4 - Split layout
+   ========================================== */
+
+.verification-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-page);
+}
+
+.verification-header {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--color-white);
+}
+
+.verification-header h1 {
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+.verification-content {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Left Panel - Form */
+.verification-form-panel {
+    flex: 1;
+    background-color: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+}
+
+.verification-illustration {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.illustration-image {
+    max-width: 200px;
+    max-height: 180px;
+}
+
+.verification-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.verification-logo {
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.verification-logo img {
+    height: 32px;
+}
+
+.verification-subtitle {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-gray-800);
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.code-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-xs);
+}
+
+.code-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.code-input:focus {
+    outline: none;
+    border-color: var(--color-teal);
+}
+
+.verify-button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.verify-button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.verify-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Right Panel - Certificate Result */
+.verification-result-panel {
+    flex: 1;
+    background-color: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.certificate-display {
+    width: 100%;
+    max-width: 400px;
+}
+
+.certificate-logo {
+    margin-bottom: var(--spacing-lg);
+}
+
+.certificate-logo img {
+    height: 40px;
+    margin: 0 auto;
+}
+
+.certificate-type {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    margin-bottom: var(--spacing-sm);
+}
+
+.certificate-holder {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-sm);
+}
+
+.certificate-completed {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-style: italic;
+    margin-bottom: var(--spacing-sm);
+}
+
+.certificate-title {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: var(--spacing-sm);
+}
+
+.certificate-date-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-400);
+}
+
+.certificate-date {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-gray-700);
+    margin-bottom: var(--spacing-lg);
+}
+
+.certificate-badge {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+.certificate-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Empty State */
+.verification-empty {
+    color: var(--color-gray-400);
+    font-size: var(--font-size-sm);
+}
+
+/* Error State */
+.verification-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--color-error);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-size: var(--font-size-sm);
+}

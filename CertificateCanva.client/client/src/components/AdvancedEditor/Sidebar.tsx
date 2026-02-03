@@ -21,8 +21,8 @@ export const Sidebar = ({
     onChangeActiveTool,
 }: SidebarProps) => {
     return (
-        <aside className="bg-white flex flex-col w-[80px] h-full border-r border-gray-200 overflow-y-auto">
-            <ul className="flex flex-col py-2">
+        <aside className="editor-tools" style={{ height: '100%', overflowY: 'auto', borderRight: '1px solid var(--border-color)', padding: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 0' }}>
                 <SidebarItem
                     icon={LayoutTemplate}
                     label="Templates"
@@ -59,14 +59,14 @@ export const Sidebar = ({
                     isActive={activeTool === "fill"}
                     onClick={() => onChangeActiveTool("fill")}
                 />
-                <div className="my-2 border-t border-gray-100" />
+                <div style={{ margin: '10px 0', borderTop: '1px solid #eee' }} />
                 <SidebarItem
                     icon={FileText}
                     label="Cert Info"
                     isActive={activeTool === "metadata"}
                     onClick={() => onChangeActiveTool("metadata")}
                 />
-            </ul>
+            </div>
         </aside>
     );
 };

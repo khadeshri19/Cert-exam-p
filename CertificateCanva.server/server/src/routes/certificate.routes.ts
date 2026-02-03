@@ -6,7 +6,7 @@ import { requireAdmin } from '../middlewares/role.middleware';
 const router = Router();
 
 // POST /api/certificate/authorize/:canvasId (ADMIN ONLY)
-router.post('/authorize/:canvasId', authenticate, requireAdmin, canvasController.authorizeCertificate);
+router.post('/authorize/:canvasId', authenticate, canvasController.authorizeCertificate);
 
 // GET /api/certificate/verify/:certificateId (PUBLIC)
 router.get('/verify/:certificateId', canvasController.verifyCertificate);

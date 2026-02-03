@@ -1,0 +1,173 @@
+/* ==========================================
+   ADMIN DASHBOARD STYLES
+   Matches Reference Image 2 - Admin pages
+   ========================================== */
+
+@import '../components/sidebar.css';
+
+/* Recents Section */
+.recents-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.recents-title {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: var(--spacing-md);
+}
+
+.recents-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.create-button {
+    padding: 12px 32px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.create-button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* Users Table */
+.admin-table-container {
+    background-color: var(--color-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-gray-600);
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-700);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Create User Modal */
+.create-user-modal {
+    padding: var(--spacing-lg);
+}
+
+.modal-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-logo-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-primary) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-white);
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: var(--color-teal);
+}
+
+.modal-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-white);
+    cursor: pointer;
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.modal-cancel {
+    flex: 1;
+    padding: 10px;
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-700);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.modal-cancel:hover {
+    background-color: var(--color-gray-200);
+}
+
+.modal-submit {
+    flex: 1;
+    padding: 10px;
+    background-color: var(--color-teal);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.modal-submit:hover {
+    background-color: #5ab5b8;
+}
