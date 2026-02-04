@@ -18,8 +18,8 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvasId, initialData, onSa
     useEffect(() => {
         if (canvasRef.current && !canvas) {
             const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-                width: 800,
-                height: 600,
+                width: 1920,
+                height: 1080,
                 backgroundColor: '#ffffff',
                 selection: true,
             });

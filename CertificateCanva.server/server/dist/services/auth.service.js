@@ -25,9 +25,9 @@ const login = async (data) => {
         throw new error_middleware_1.HttpError('Invalid credentials', 401);
     }
     // Generate access token
-    const accessToken = jsonwebtoken_1.default.sign({ id: user.id, role: user.role_name }, jwt_1.jwtConfig.accessToken.secret, { expiresIn: jwt_1.jwtConfig.accessToken.expiresIn });
+    const accessToken = jsonwebtoken_1.default.sign({ id: user.id, role: user.role_name }, jwt_1.jwtConfig.accessToken.secret, { expiresIn: '15m' });
     // Generate refresh token
-    const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, jwt_1.jwtConfig.refreshToken.secret, { expiresIn: jwt_1.jwtConfig.refreshToken.expiresIn });
+    const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, jwt_1.jwtConfig.refreshToken.secret, { expiresIn: '7d' });
     // Save refresh token to database
     await (0, auth_repository_1.saveRefreshToken)(user.id, refreshToken);
     return { accessToken, refreshToken };
@@ -54,7 +54,7 @@ const refresh = async (token) => {
             throw new error_middleware_1.HttpError('Account is deactivated', 403);
         }
         // Generate new access token
-        const accessToken = jsonwebtoken_1.default.sign({ id: decoded.id, role: user.role_name }, jwt_1.jwtConfig.accessToken.secret, { expiresIn: jwt_1.jwtConfig.accessToken.expiresIn });
+        const accessToken = jsonwebtoken_1.default.sign({ id: decoded.id, role: user.role_name }, jwt_1.jwtConfig.accessToken.secret, { expiresIn: '15m' });
         return accessToken;
     }
     catch (error) {

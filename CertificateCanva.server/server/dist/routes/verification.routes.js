@@ -34,9 +34,12 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const controller = __importStar(require("../controllers/verification.controller"));
+const verificationController = __importStar(require("../controllers/verification.controller"));
+const auth_middleware_1 = require("../middlewares/auth.middleware");
 const router = (0, express_1.Router)();
-// Public verification endpoint - no authentication required
-router.get('/authorized/:id', controller.verifyCertificate);
+// PUBLIC route - no auth required
+router.get('/:code', verificationController.verifyCertificate);
+// Protected route - get verification status for user's own canvas
+router.get('/status/:canvasId', auth_middleware_1.authenticate, verificationController.getVerificationStatus);
 exports.default = router;
 //# sourceMappingURL=verification.routes.js.map

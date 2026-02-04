@@ -39,12 +39,15 @@ const auth_middleware_1 = require("../middlewares/auth.middleware");
 const multer_1 = require("../config/multer");
 const router = (0, express_1.Router)();
 // All image routes require authentication
-router.use(auth_middleware_1.authMiddleware);
-// Image routes
+router.use(auth_middleware_1.authenticate);
+// Image routes (per strict spec)
+// POST /api/images - Upload image
 router.post('/', multer_1.upload.single('image'), controller.upload);
+// GET /api/images - Get all images
 router.get('/', controller.getAll);
-router.get('/stats', controller.getStats);
+// GET /api/images/:id - Get single image
 router.get('/:id', controller.getOne);
+// DELETE /api/images/:id - Delete image
 router.delete('/:id', controller.remove);
 exports.default = router;
 //# sourceMappingURL=images.routes.js.map

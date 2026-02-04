@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 const generateCertificateId = (): string => {
     const part1 = uuidv4().split('-')[0];
     const part2 = uuidv4().split('-')[1];
-    return `sarv-${part1}-${part2}`;
+    return `sarvārth-${part1}-${part2}`;
 };
 
 // Create a new canvas session (Matches Prompt Rule 1 & 6)

@@ -77,7 +77,7 @@ export const Navbar = ({
                 <button onClick={() => navigate('/user/dashboard')} className="btn-outline" style={{ padding: '8px', border: 'none' }}>
                     <ChevronLeft size={20} />
                 </button>
-                <SarvarthLogo size="md" />
+                
 
                 <div style={{ display: 'flex', gap: 5, marginLeft: 20 }}>
                     <button className="tool-button" onClick={() => editor?.onUndo()}>

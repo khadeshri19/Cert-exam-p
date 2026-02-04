@@ -34,23 +34,29 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const controller = __importStar(require("../controllers/admin.controller"));
+const adminController = __importStar(require("../controllers/admin.controller"));
 const auth_middleware_1 = require("../middlewares/auth.middleware");
 const role_middleware_1 = require("../middlewares/role.middleware");
-const validate_middleware_1 = require("../middlewares/validate.middleware");
 const router = (0, express_1.Router)();
-// All admin routes require authentication and admin role
-router.use(auth_middleware_1.authMiddleware);
-router.use(role_middleware_1.authorizeAdmin);
+// All routes require authentication and admin role
+router.use(auth_middleware_1.authenticate);
+router.use(role_middleware_1.requireAdmin);
 // User management
-router.post('/users', (0, validate_middleware_1.validate)(validate_middleware_1.createUserSchema), controller.createUser);
-router.get('/users', controller.getUsers);
-router.get('/users/:id', controller.getUser);
-router.patch('/users/:id', controller.updateUser);
-router.delete('/users/:id', controller.deleteUser);
-// Admin view-only endpoints
-router.get('/canvases', controller.getAllCanvases);
-router.get('/images', controller.getAllImages);
-router.get('/authorized', controller.getAllAuthorizedCanvases);
+router.post('/users', adminController.createUser);
+router.get('/users', adminController.getAllUsers);
+router.get('/users/:id', adminController.getUser);
+router.patch('/users/:id', adminController.updateUser);
+router.delete('/users/:id', adminController.deleteUser);
+// Canvas sessions (view only - admins cannot design)
+router.get('/canvas-sessions', adminController.getAllCanvasSessions);
+router.get('/canvas-sessions/active', adminController.getActiveCanvasSessions);
+// Activity logs
+router.get('/activity-logs', adminController.getCanvasActivityLogs);
+// Certificates
+router.get('/certificates', adminController.getAllCertificates);
+// Verification links
+router.get('/verification-links', adminController.getAllVerificationLinks);
+// Uploaded files
+router.get('/files', adminController.getAllUploadedFiles);
 exports.default = router;
 //# sourceMappingURL=admin.routes.js.map

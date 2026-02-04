@@ -33,74 +33,151 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllAuthorizedCanvases = exports.getAllImages = exports.getAllCanvases = exports.deleteUser = exports.updateUser = exports.getUser = exports.getUsers = exports.createUser = void 0;
+exports.getAllUploadedFiles = exports.getAllVerificationLinks = exports.getAllCertificates = exports.getCanvasActivityLogs = exports.getActiveCanvasSessions = exports.getAllCanvasSessions = exports.deleteUser = exports.updateUser = exports.getUser = exports.getAllUsers = exports.createUser = void 0;
 const adminService = __importStar(require("../services/admin.service"));
-const canvasService = __importStar(require("../services/canvas.service"));
-const imageService = __importStar(require("../services/images.service"));
-const error_middleware_1 = require("../middlewares/error.middleware");
-exports.createUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
-    const user = await adminService.createUser(req.body);
-    res.status(201).json({
-        success: true,
-        message: 'User created successfully',
-        data: user,
-    });
-});
-exports.getUsers = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
-    const users = await adminService.getUsers();
-    res.json({
-        success: true,
-        data: users,
-    });
-});
-exports.getUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
-    const user = await adminService.getUserById(req.params.id);
-    res.json({
-        success: true,
-        data: user,
-    });
-});
-exports.updateUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
-    const user = await adminService.updateUser(req.params.id, req.body, req.user?.id);
-    res.json({
-        success: true,
-        message: 'User updated successfully',
-        data: user,
-    });
-});
-exports.deleteUser = (0, error_middleware_1.asyncHandler)(async (req, res) => {
-    if (!req.user) {
-        res.status(401).json({
-            success: false,
-            message: 'Unauthorized',
+const response_1 = require("../utils/response");
+// Create user
+const createUser = async (req, res, next) => {
+    try {
+        const { name, username, email, password, role_id } = req.body;
+        if (!name || !username || !email || !password) {
+            return (0, response_1.sendError)(res, 'Name, username, email and password are required', 400);
+        }
+        const user = await adminService.createUser({
+            name,
+            username,
+            email,
+            password,
+            role_id: role_id || 2, // Default to user role
         });
-        return;
+        (0, response_1.sendSuccess)(res, user, 'User created successfully', 201);
     }
-    await adminService.deleteUser(req.params.id, req.user.id);
-    res.status(204).send();
-});
-// Admin: Get all canvas sessions
-exports.getAllCanvases = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
-    const canvases = await canvasService.getAllCanvases();
-    res.json({
-        success: true,
-        data: canvases,
-    });
-});
-// Admin: Get all images
-exports.getAllImages = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
-    const images = await imageService.getAllImages();
-    res.json({
-        success: true,
-        data: images,
-    });
-});
-// Admin: Get all authorized canvases
-exports.getAllAuthorizedCanvases = (0, error_middleware_1.asyncHandler)(async (_req, res) => {
-    const authorizedCanvases = await canvasService.getAllAuthorizedCanvases();
-    res.json({
-        success: true,
-        data: authorizedCanvases,
-    });
-});
+    catch (error) {
+        next(error);
+    }
+};
+exports.createUser = createUser;
+// Get all users
+const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await adminService.getAllUsers();
+        (0, response_1.sendSuccess)(res, users);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getAllUsers = getAllUsers;
+// Get user by ID
+const getUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const user = await adminService.getUserById(id);
+        (0, response_1.sendSuccess)(res, user);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getUser = getUser;
+// Update user
+const updateUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { name, username, email, password, role_id, is_active } = req.body;
+        const user = await adminService.updateUser(id, {
+            name,
+            username,
+            email,
+            password,
+            role_id,
+            is_active,
+        });
+        (0, response_1.sendSuccess)(res, user, 'User updated successfully');
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.updateUser = updateUser;
+// Delete user
+const deleteUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const adminId = req.user.id;
+        const result = await adminService.deleteUser(id, adminId);
+        (0, response_1.sendSuccess)(res, result);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.deleteUser = deleteUser;
+// Get all canvas sessions (admin view only)
+const getAllCanvasSessions = async (req, res, next) => {
+    try {
+        const sessions = await adminService.getAllCanvasSessions();
+        (0, response_1.sendSuccess)(res, sessions);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getAllCanvasSessions = getAllCanvasSessions;
+// Get active canvas sessions (real-time tracking)
+const getActiveCanvasSessions = async (req, res, next) => {
+    try {
+        const sessions = await adminService.getActiveCanvasSessions();
+        (0, response_1.sendSuccess)(res, sessions);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getActiveCanvasSessions = getActiveCanvasSessions;
+// Get canvas activity logs
+const getCanvasActivityLogs = async (req, res, next) => {
+    try {
+        const { canvasSessionId } = req.query;
+        const logs = await adminService.getCanvasActivityLogs(canvasSessionId);
+        (0, response_1.sendSuccess)(res, logs);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getCanvasActivityLogs = getCanvasActivityLogs;
+// Get all certificates
+const getAllCertificates = async (req, res, next) => {
+    try {
+        const certificates = await adminService.getAllCertificates();
+        (0, response_1.sendSuccess)(res, certificates);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getAllCertificates = getAllCertificates;
+// Get all verification links
+const getAllVerificationLinks = async (req, res, next) => {
+    try {
+        const links = await adminService.getAllVerificationLinks();
+        (0, response_1.sendSuccess)(res, links);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getAllVerificationLinks = getAllVerificationLinks;
+// Get all uploaded files
+const getAllUploadedFiles = async (req, res, next) => {
+    try {
+        const files = await adminService.getAllUploadedFiles();
+        (0, response_1.sendSuccess)(res, files);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getAllUploadedFiles = getAllUploadedFiles;
 //# sourceMappingURL=admin.controller.js.map

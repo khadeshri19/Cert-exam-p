@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/common/Sidebar';
-import SarvarthLogo from '../../components/common/SarvarthLogo';
+import SarvarthLogoIcon from '../../components/common/SarvarthLogoIcon';
 import '../../styles/pages/dashboard.css';
 
 const UserProfile: React.FC = () => {
@@ -19,7 +19,7 @@ const UserProfile: React.FC = () => {
                     <div className="profile-container">
                         <div className="profile-avatar-section">
                             <div className="profile-avatar-large">
-                                <SarvarthLogo size="lg" />
+                                <SarvarthLogoIcon size="xl" />
                             </div>
                         </div>
                         <div className="profile-form-section">

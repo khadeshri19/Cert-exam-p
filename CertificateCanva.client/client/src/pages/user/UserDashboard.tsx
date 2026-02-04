@@ -31,7 +31,7 @@ const UserDashboard: React.FC = () => {
             <main className="main-content">
                 <div className="page-container">
                     <header className="page-header">
-                        <h1 className="page-title">DashBoard</h1>
+                        <h1 className="page-title">Dashboard</h1>
                         <input type="text" className="page-search" placeholder="Search..." />
                     </header>
 

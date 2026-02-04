@@ -33,15 +33,32 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyCertificate = void 0;
+exports.getVerificationStatus = exports.verifyCertificate = void 0;
 const verificationService = __importStar(require("../services/verification.service"));
-const error_middleware_1 = require("../middlewares/error.middleware");
-// Public endpoint - no authentication required
-exports.verifyCertificate = (0, error_middleware_1.asyncHandler)(async (req, res) => {
-    const result = await verificationService.verifyCertificate(req.params.id);
-    res.json({
-        success: true,
-        ...result,
-    });
-});
+const response_1 = require("../utils/response");
+// Verify certificate by code (PUBLIC - no auth required)
+const verifyCertificate = async (req, res, next) => {
+    try {
+        const { code } = req.params;
+        const result = await verificationService.verifyCertificate(code);
+        (0, response_1.sendSuccess)(res, result);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.verifyCertificate = verifyCertificate;
+// Get verification status for user's canvas
+const getVerificationStatus = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { canvasId } = req.params;
+        const result = await verificationService.getVerificationStatus(canvasId, userId);
+        (0, response_1.sendSuccess)(res, result);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getVerificationStatus = getVerificationStatus;
 //# sourceMappingURL=verification.controller.js.map

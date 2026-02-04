@@ -33,9 +33,6 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="login-page">
-            <header className="login-header">
-                <h1>LOGIN</h1>
-            </header>
             <main className="login-content">
                 <div className="login-card">
                     <div className="login-logo">
