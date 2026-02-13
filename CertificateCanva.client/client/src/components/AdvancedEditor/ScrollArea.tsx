@@ -1,8 +1,8 @@
 import React from "react";
 
-export const ScrollArea = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+export const ScrollArea = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className={`overflow-y-auto flex-1 ${className || ""}`}>
+        <div style={{ overflowY: 'auto', flex: 1 }}>
             {children}
         </div>
     );

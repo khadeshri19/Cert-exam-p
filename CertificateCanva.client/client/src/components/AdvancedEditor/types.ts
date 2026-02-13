@@ -104,6 +104,7 @@ export type ActiveTool =
     | "opacity"
     | "filter"
     | "settings"
+    | "resize"
     | "ai"
     | "remove-bg"
     | "templates"

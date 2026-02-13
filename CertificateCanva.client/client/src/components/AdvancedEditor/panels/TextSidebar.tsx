@@ -1,9 +1,6 @@
 import type { ActiveTool, Editor } from "../types";
 import { ToolSidebarClose } from "../ToolSidebarClose";
-import { ToolSidebarHeader } from "../ToolSidebarHeader";
 import { ScrollArea } from "../ScrollArea";
-
-import { cn } from "../../../lib/utils";
 
 interface TextSidebarProps {
     editor: Editor | undefined;
@@ -22,61 +19,108 @@ export const TextSidebar = ({
 
     return (
         <aside
-            className={cn(
-                "bg-white relative border-r border-gray-200 z-[40] w-[300px] h-full flex flex-col",
-                activeTool === "text" ? "visible" : "hidden",
-            )}
+            style={{
+                display: activeTool === "text" ? "flex" : "none",
+                backgroundColor: 'white',
+                position: 'relative',
+                borderRight: '1px solid #e5e7eb',
+                zIndex: 40,
+                width: '300px',
+                height: '100%',
+                flexDirection: 'column',
+                overflow: 'visible'
+            }}
         >
-            <ToolSidebarHeader
-                title="Text"
-                description="Add text to your canvas"
-            />
+            <div style={{ padding: '16px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                    <button style={{ fontSize: '14px', fontWeight: 600, borderBottom: '2px solid #2563eb', paddingBottom: '4px', background: 'none', border: 'none', borderBottomStyle: 'solid', cursor: 'pointer' }}>Text</button>
+                    <button style={{ fontSize: '14px', fontWeight: 500, color: '#6b7280', paddingBottom: '4px', background: 'none', border: 'none', cursor: 'pointer' }}>My fonts</button>
+                </div>
+            </div>
+
             <ScrollArea>
-                <div className="p-4 space-y-3">
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <button
-                        className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-xl transition-colors border border-gray-200"
-                        onClick={() => editor?.addText("Textbox")}
+                        style={{
+                            width: '100%',
+                            padding: '16px',
+                            backgroundColor: 'white',
+                            color: '#1f2937',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                            borderRadius: '6px',
+                            transition: 'all 0.2s',
+                            border: '2px solid black',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        onClick={() => editor?.addText("Heading", {
+                            fontSize: 80,
+                            fontWeight: 700,
+                        })}
                     >
-                        Add a textbox
+                        Create header
                     </button>
 
-                    <div className="pt-2">
-                        <p className="text-xs font-medium text-gray-500 mb-2">Quick Add</p>
-                        <div className="space-y-2">
-                            <button
-                                className="w-full px-4 py-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200 text-left"
-                                onClick={() => editor?.addText("Heading", {
-                                    fontSize: 80,
-                                    fontWeight: 700,
-                                })}
-                            >
-                                <span className="text-2xl font-bold text-gray-800">
-                                    Heading
-                                </span>
-                            </button>
+                    <button
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            backgroundColor: 'white',
+                            color: '#1f2937',
+                            fontWeight: 600,
+                            fontSize: '18px',
+                            borderRadius: '6px',
+                            transition: 'all 0.2s',
+                            border: '2px solid black',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        onClick={() => editor?.addText("Subheading", {
+                            fontSize: 44,
+                            fontWeight: 600,
+                        })}
+                    >
+                        Create sub header
+                    </button>
 
-                            <button
-                                className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200 text-left"
-                                onClick={() => editor?.addText("Subheading", {
-                                    fontSize: 44,
-                                    fontWeight: 600,
-                                })}
-                            >
-                                <span className="text-xl font-semibold text-gray-700">
-                                    Subheading
-                                </span>
-                            </button>
+                    <button
+                        style={{
+                            width: '100%',
+                            padding: '8px 16px',
+                            backgroundColor: 'white',
+                            color: '#1f2937',
+                            fontWeight: 500,
+                            fontSize: '16px',
+                            borderRadius: '6px',
+                            transition: 'all 0.2s',
+                            border: '2px solid black',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        onClick={() => editor?.addText("Paragraph", {
+                            fontSize: 32,
+                        })}
+                    >
+                        Create body text
+                    </button>
 
-                            <button
-                                className="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200 text-left"
-                                onClick={() => editor?.addText("Paragraph", {
-                                    fontSize: 32,
-                                })}
-                            >
-                                <span className="text-base text-gray-600">
-                                    Paragraph text
-                                </span>
-                            </button>
+                    <div style={{ marginTop: '32px', borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>Default text styles</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {/* Additional text presets can go here */}
                         </div>
                     </div>
                 </div>

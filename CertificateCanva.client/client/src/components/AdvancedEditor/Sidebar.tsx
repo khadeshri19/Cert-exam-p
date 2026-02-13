@@ -2,7 +2,7 @@ import {
     LayoutTemplate,
     ImageIcon,
     Pencil,
-    Palette,
+    Maximize,
     Shapes,
     Type,
     FileText,
@@ -24,18 +24,6 @@ export const Sidebar = ({
         <aside className="editor-tools" style={{ height: '100%', overflowY: 'auto', borderRight: '1px solid var(--border-color)', padding: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 0' }}>
                 <SidebarItem
-                    icon={LayoutTemplate}
-                    label="Templates"
-                    isActive={activeTool === "templates"}
-                    onClick={() => onChangeActiveTool("templates")}
-                />
-                <SidebarItem
-                    icon={ImageIcon}
-                    label="Images"
-                    isActive={activeTool === "images"}
-                    onClick={() => onChangeActiveTool("images")}
-                />
-                <SidebarItem
                     icon={Type}
                     label="Text"
                     isActive={activeTool === "text"}
@@ -43,7 +31,7 @@ export const Sidebar = ({
                 />
                 <SidebarItem
                     icon={Shapes}
-                    label="Shapes"
+                    label="Elements"
                     isActive={activeTool === "shapes"}
                     onClick={() => onChangeActiveTool("shapes")}
                 />
@@ -54,12 +42,26 @@ export const Sidebar = ({
                     onClick={() => onChangeActiveTool("draw")}
                 />
                 <SidebarItem
-                    icon={Palette}
-                    label="Fill"
-                    isActive={activeTool === "fill"}
-                    onClick={() => onChangeActiveTool("fill")}
+                    icon={ImageIcon}
+                    label="Assets"
+                    isActive={activeTool === "images"}
+                    onClick={() => onChangeActiveTool("images")}
                 />
-                <div style={{ margin: '10px 0', borderTop: '1px solid #eee' }} />
+                <SidebarItem
+                    icon={Maximize}
+                    label="Resize"
+                    isActive={activeTool === "resize"}
+                    onClick={() => onChangeActiveTool("resize")}
+                />
+
+                <div style={{ margin: '15px 0', borderTop: '1px solid #eee' }} />
+
+                <SidebarItem
+                    icon={LayoutTemplate}
+                    label="Templates"
+                    isActive={activeTool === "templates"}
+                    onClick={() => onChangeActiveTool("templates")}
+                />
                 <SidebarItem
                     icon={FileText}
                     label="Cert Info"

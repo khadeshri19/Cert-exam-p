@@ -10,9 +10,29 @@ export const ToolSidebarClose = ({
     return (
         <button
             onClick={onClick}
-            className="absolute -right-7 h-16 bg-white top-1/2 transform -translate-y-1/2 flex items-center justify-center rounded-r-xl px-1.5 border-r border-y border-gray-200 shadow-sm group z-[50] hover:bg-gray-50 transition-colors"
+            style={{
+                position: 'absolute',
+                right: '-28px',
+                height: '64px',
+                backgroundColor: 'white',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '0 12px 12px 0',
+                padding: '0 6px',
+                border: '1px solid #e5e7eb',
+                borderLeft: 'none',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                zIndex: 50,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
         >
-            <ChevronsLeft className="size-4 text-gray-400 group-hover:text-gray-600 transition" />
+            <ChevronsLeft style={{ width: '16px', height: '16px', color: '#9ca3af' }} />
         </button>
     );
 };

@@ -1,152 +1,57 @@
 # Sarvarth Certificate Platform
 
-A production-ready full-stack web application for certificate design, generation, authorization, export, and public verification.
+An enterprise-grade, full-stack solution for designing, issuing, and verifying digital certificates. This platform emphasizes state serialization, relational integrity, and secure verification workflows.
 
-![Sarvarth Logo](CertificateCanva.client/client/public/sarvarth-logo.png)
+## 🏗️ System Architecture
 
-## Features
+The project follows a decoupled architecture with a **React (Vite)** frontend and a **Node.js/Express** backend, utilizing **PostgreSQL** for persistent storage.
 
-✅ **Role-based Access Control** - Admin and User roles with granular permissions  
-✅ **Secure Authentication** - JWT-based auth with access and refresh tokens  
-✅ **Canvas Editor** - Fabric.js powered certificate designer  
-✅ **Asset Management** - Upload and manage images for certificates  
-✅ **Certificate Export** - Export as PNG, JPG, SVG formats  
-✅ **Public Verification** - Verify certificates without authentication  
-✅ **Modern UI** - Clean, responsive design with Sarvarth branding  
+### Core Stack
+- **Frontend:** React 19, Fabric.js (Canvas Engine), Lucide React, Axios.
+- **Backend:** Node.js, Express, PostgreSQL.
+- **Auth:** JWT (Access/Refresh Token strategy), bcrypt, Role-Based Access Control (RBAC).
 
-## Tech Stack
+---
 
-### Frontend
-- React.js + TypeScript
-- React Router
-- Tailwind CSS
-- Fabric.js (Canvas)
-- Axios
+## 🧠 Engineering Logic & Design Patterns
 
-### Backend
-- Node.js + Express.js + TypeScript
-- PostgreSQL (Raw SQL - no ORM)
-- JWT Authentication
-- bcrypt password hashing
+### 1. Canvas Serialization Pattern (Fabric.js Integration)
+Unlike simple "drawing" apps that save images, this platform treats the certificate as **state**.
+- **Logic:** Certificates are serialized into a complex **JSON format** and stored as a `JSONB` column in PostgreSQL.
+- **Trade-off:** Saving raw images would consume massive storage and lose editability. By storing the JSON state, we enable non-destructive editing and high-resolution exports on the fly.
 
-## Quick Start
+### 2. High-Entropy Certificate ID Generation
+The generation logic in `canvas.service.ts` avoids predictable sequences.
+- **Implementation:** `sarv-${uuid.split('-')[0]}-${uuid.split('-')[1]}`.
+- **Logic:** By concatenating two distinct segments from a UUID v4, we generate a 12-character hex string + prefix. This provides **281 trillion ($16^{12}$)** possible combinations, making collisions mathematically improbable while keeping the ID human-readable for verification.
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL 14+
+### 3. Persistent State & Debounced Efficiency
+In a canvas editor, network traffic can become a bottleneck.
+- **Logic:** I implemented a **Debounced Save** strategy (500ms).
+- **Benefit:** This ensures the UI feels like a modern "auto-saving" application while preventing the server from being flooded with a new database `UPDATE` on every mouse movement.
 
-### 1. Setup Database
+### 4. Relational Integrity & Trust Model
+The platform uses a strict **Audit Trail** for certificate authorization.
+- **Atomic Operations:** Authorization is handled as a **Database Transaction**. We ensure that the `canvas_sessions.is_authorized` flag and the `certificate_authorizations` log entry are committed together or not at all.
+- **Logic:** This prevents "Ghost Authorizations" where a certificate appears valid but has no recorded authorizer.
 
-```bash
-# Create database
-psql -U postgres -c "CREATE DATABASE certificate_canvas;"
+### 5. Frontend Optimization: Code Splitting
+The Editor workspace is significantly heavier than the landing pages.
+- **Logic:** Used **Dynamic Imports** for the `AdvancedEditor` component in `CanvasEditorPage.tsx`.
+- **Reasoning:** This keeps the initial bundle size small, ensuring fast load times for the Landing and Verification pages, only loading the heavy Canvas engine when the user actually starts designing.
 
-# Run schema
-cd CertificateCanva.server/server
-npm run db:setup
-npm run db:seed
-```
+---
 
-### 2. Configure Environment
+## 🔒 Security Architecture
 
-```bash
-# Backend
-cd CertificateCanva.server/server
-cp .env.example .env
-# Edit .env with your database credentials
-```
+- **Stateless Authorization:** Uses JWT with a **Dual Token System** (Access + Refresh).
+- **Service Layer Security:** Middlewares like `authenticate` and `requireAdmin` act as guards before any business logic is executed.
+- **Data Safety:** All database interactions utilize **Parameterized Queries** through `node-pg` to eliminate SQL Injection risks.
 
-### 3. Install Dependencies
+---
 
-```bash
-# Backend
-cd CertificateCanva.server/server
-npm install
+## 🎨 Design Philosophy: Modular CSS
 
-# Frontend
-cd CertificateCanva.client/client
-npm install
-```
-
-### 4. Start Development Servers
-
-```bash
-# Terminal 1 - Backend (Port 4000)
-cd CertificateCanva.server/server
-npm run dev
-
-# Terminal 2 - Frontend (Port 5173)
-cd CertificateCanva.client/client
-npm run dev
-```
-
-### 5. Access Application
-
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:4000
-
-### Default Credentials
-
-```
-Admin: admin / admin123
-User: user / user123
-```
-
-## Project Structure
-
-```
-sarvarth_project/
-├── CertificateCanva.client/
-│   └── client/
-│       └── src/
-│           ├── api/           # API client
-│           ├── components/    # Reusable components
-│           ├── context/       # Auth context
-│           ├── hooks/         # Custom hooks
-│           ├── pages/         # Page components
-│           └── App.tsx        # Main app
-│
-├── CertificateCanva.server/
-│   └── server/
-│       └── src/
-│           ├── controllers/   # Route handlers
-│           ├── middlewares/   # Auth, error handling
-│           ├── repository/    # Database queries
-│           ├── routes/        # API routes
-│           ├── services/      # Business logic
-│           └── script/        # DB setup scripts
-│
-└── PRD.md                     # Product Requirements
-```
-
-## API Endpoints
-
-### Auth
-- `POST /api/auth/login` - Login
-- `POST /api/auth/refresh` - Refresh token
-- `POST /api/auth/logout` - Logout
-
-### Admin (Protected)
-- `GET /api/admin/users` - List users
-- `POST /api/admin/users` - Create user
-- `PATCH /api/admin/users/:id` - Update user
-- `DELETE /api/admin/users/:id` - Delete user
-
-### Canvas (Protected)
-- `GET /api/canva/session` - List canvases
-- `POST /api/canva/session` - Create canvas
-- `GET /api/canva/session/:id` - Get canvas
-- `PATCH /api/canva/session/:id` - Update canvas
-- `DELETE /api/canva/session/:id` - Delete canvas
-
-### Images (Protected)
-- `GET /api/images` - List images
-- `POST /api/images` - Upload image
-- `DELETE /api/images/:id` - Delete image
-
-### Verification (Public)
-- `GET /api/authorized/:id` - Verify certificate
-
-## License
-
-MIT License - See LICENSE file for details.
+Instead of a utility-first framework like Tailwind, this project uses a **Modular CSS approach**.
+- **Organization:** Styles are scoped to specific pages (e.g., `src/styles/pages/verification.css`).
+- **Logic:** This ensures maximum performance with zero runtime overhead and prevents "Global Namespace Pollution," making the UI highly maintainable for future developers.

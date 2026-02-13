@@ -11,7 +11,6 @@ import { useAuth } from "../../context/AuthContext";
 import { certificateApi } from "../../api";
 
 import type { ActiveTool, Editor } from "./types";
-import SarvarthLogo from "../common/SarvarthLogo";
 
 interface NavbarProps {
     editor: Editor | undefined;
@@ -31,7 +30,7 @@ export const Navbar = ({
     isAuthorized: initialIsAuthorized
 }: NavbarProps) => {
     const navigate = useNavigate();
-    const { isAdmin } = useAuth();
+    const { } = useAuth();
     const [showExportMenu, setShowExportMenu] = useState(false);
     const [isAuthorized, setIsAuthorized] = useState(initialIsAuthorized);
     const [isAuthorizing, setIsAuthorizing] = useState(false);
@@ -69,40 +68,86 @@ export const Navbar = ({
         }
     };
 
+    const buttonStyle = {
+        padding: '8px 16px',
+        backgroundColor: '#ef4444',
+        color: 'white',
+        fontSize: '14px',
+        fontWeight: 500,
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        transition: 'background-color 0.2s',
+    };
+
+    const toolBtnStyle = {
+        padding: '8px',
+        background: 'none',
+        border: 'none',
+        color: '#6b7280',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '4px'
+    };
 
     return (
-        <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', backgroundColor: 'white' }}>
             {/* Left */}
-            <div className="editor-nav-left">
-                <button onClick={() => navigate('/user/dashboard')} className="btn-outline" style={{ padding: '8px', border: 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <button
+                    onClick={() => navigate('/user/dashboard')}
+                    style={{ ...toolBtnStyle, backgroundColor: '#f3f4f6' }}
+                >
                     <ChevronLeft size={20} />
                 </button>
-                
 
-                <div style={{ display: 'flex', gap: 5, marginLeft: 20 }}>
-                    <button className="tool-button" onClick={() => editor?.onUndo()}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        style={toolBtnStyle}
+                        onClick={() => editor?.onUndo()}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
                         <Undo2 size={18} />
                     </button>
-                    <button className="tool-button" onClick={() => editor?.onRedo()}>
+                    <button
+                        style={toolBtnStyle}
+                        onClick={() => editor?.onRedo()}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
                         <Redo2 size={18} />
                     </button>
                 </div>
             </div>
 
             {/* Right */}
-            <div className="editor-nav-right">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
-                    className="export-button"
+                    style={{
+                        ...buttonStyle,
+                        backgroundColor: isAuthorized ? '#10b981' : '#3b82f6',
+                        opacity: isAuthorizing ? 0.7 : 1
+                    }}
                     onClick={handleAuthorize}
                     disabled={isAuthorized || isAuthorizing}
-                    style={{ backgroundColor: isAuthorized ? '#10b981' : undefined }}
                 >
                     {isAuthorized ? <CheckCircle size={16} /> : <ShieldCheck size={16} />}
                     {isAuthorized ? 'Authorized' : 'Authorize'}
                 </button>
 
                 <div style={{ position: 'relative' }}>
-                    <button className="export-button" onClick={() => setShowExportMenu(!showExportMenu)}>
+                    <button
+                        style={buttonStyle}
+                        onClick={() => setShowExportMenu(!showExportMenu)}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+                    >
                         Download
                     </button>
                     {showExportMenu && (
@@ -110,27 +155,37 @@ export const Navbar = ({
                             position: 'absolute',
                             top: '100%',
                             right: 0,
-                            marginTop: 5,
+                            marginTop: '8px',
                             backgroundColor: 'white',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                            borderRadius: 4,
-                            padding: 5,
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                            borderRadius: '4px',
+                            padding: '4px',
                             zIndex: 100,
-                            minWidth: 120,
-                            border: '1px solid #eee'
+                            minWidth: '120px',
+                            border: '1px solid #e5e7eb'
                         }}>
-                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('png')}>
-                                PNG
-                            </button>
-                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('jpg')}>
-                                JPG
-                            </button>
-                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('svg')}>
-                                SVG
-                            </button>
-                            <button style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }} onClick={() => handleExport('json')}>
-                                JSON
-                            </button>
+                            {['png', 'jpg', 'svg', 'json'].map((ext) => (
+                                <button
+                                    key={ext}
+                                    style={{
+                                        display: 'block',
+                                        width: '100%',
+                                        padding: '8px 12px',
+                                        textAlign: 'left',
+                                        border: 'none',
+                                        background: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        color: '#374151',
+                                        borderRadius: '2px'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    onClick={() => handleExport(ext as any)}
+                                >
+                                    {ext.toUpperCase()}
+                                </button>
+                            ))}
                         </div>
                     )}
                 </div>

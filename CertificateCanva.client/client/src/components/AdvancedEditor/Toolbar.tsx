@@ -2,7 +2,11 @@ import {
     ArrowUp,
     ArrowDown,
     Trash,
-    Copy
+    Copy,
+    Layers,
+    TypeIcon,
+    Palette,
+    Settings2,
 } from "lucide-react";
 
 import { isTextType } from "./utils";
@@ -44,7 +48,10 @@ export const Toolbar = ({
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        gap: '4px',
+        fontSize: '12px',
+        color: '#4b5563'
     };
 
     const activeStyle = {
@@ -52,11 +59,12 @@ export const Toolbar = ({
     };
 
     return (
-        <div style={{ height: 56, borderBottom: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 8 }}>
+        <div style={{ height: 56, borderBottom: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 4 }}>
             {!isImage && (
                 <button
                     onClick={() => onChangeActiveTool("fill")}
                     style={{ ...buttonStyle, ...(activeTool === "fill" ? activeStyle : {}) }}
+                    title="Fill Color"
                 >
                     <div
                         style={{
@@ -70,23 +78,63 @@ export const Toolbar = ({
                 </button>
             )}
             {!isText && (
+                <>
+                    <button
+                        onClick={() => onChangeActiveTool("stroke-color")}
+                        style={{ ...buttonStyle, ...(activeTool === "stroke-color" ? activeStyle : {}) }}
+                        title="Stroke Color"
+                    >
+                        <div
+                            style={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: 2,
+                                border: '2px solid',
+                                borderColor: strokeColor,
+                                backgroundColor: 'white'
+                            }}
+                        />
+                    </button>
+                    <button
+                        onClick={() => onChangeActiveTool("stroke-width")}
+                        style={{ ...buttonStyle, ...(activeTool === "stroke-width" ? activeStyle : {}) }}
+                        title="Stroke Width"
+                    >
+                        <Settings2 size={16} />
+                    </button>
+                </>
+            )}
+
+            {isText && (
                 <button
-                    onClick={() => onChangeActiveTool("stroke-color")}
-                    style={{ ...buttonStyle, ...(activeTool === "stroke-color" ? activeStyle : {}) }}
+                    onClick={() => onChangeActiveTool("font")}
+                    style={{ ...buttonStyle, ...(activeTool === "font" ? activeStyle : {}) }}
+                    title="Font Family"
                 >
-                    <div
-                        style={{
-                            width: 16,
-                            height: 16,
-                            borderRadius: 2,
-                            border: '2px solid',
-                            borderColor: strokeColor,
-                            backgroundColor: 'white'
-                        }}
-                    />
+                    <TypeIcon size={16} />
                 </button>
             )}
+
+            {isImage && (
+                <button
+                    onClick={() => onChangeActiveTool("filter")}
+                    style={{ ...buttonStyle, ...(activeTool === "filter" ? activeStyle : {}) }}
+                    title="Filters"
+                >
+                    <Palette size={16} />
+                </button>
+            )}
+
+            <button
+                onClick={() => onChangeActiveTool("opacity")}
+                style={{ ...buttonStyle, ...(activeTool === "opacity" ? activeStyle : {}) }}
+                title="Opacity"
+            >
+                <Layers size={16} />
+            </button>
+
             <div style={{ height: 24, width: 1, backgroundColor: '#e5e7eb', margin: '0 8px' }} />
+
             <button
                 onClick={() => editor?.bringForward()}
                 style={buttonStyle}

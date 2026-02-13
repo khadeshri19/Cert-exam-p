@@ -19,17 +19,22 @@ export const login = async (data: LoginDTO): Promise<TokenResponse> => {
 
   const user = await findUserByEmail(data.email);
   if (!user) {
+    console.log(`[AUTH] Login failed: User not found (${data.email})`);
     throw new HttpError('Invalid credentials', 401);
   }
 
   if (!user.is_active) {
+    console.log(`[AUTH] Login failed: Account deactivated (${data.email})`);
     throw new HttpError('Account is deactivated', 403);
   }
 
   const valid = await comparePassword(data.password, user.password_hash);
   if (!valid) {
+    console.log(`[AUTH] Login failed: Invalid password (${data.email})`);
     throw new HttpError('Invalid credentials', 401);
   }
+
+  console.log(`[AUTH] Login successful: ${data.email}`);
 
   // Generate access token
   const accessToken = jwt.sign(

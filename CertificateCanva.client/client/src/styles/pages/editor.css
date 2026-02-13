@@ -12,11 +12,11 @@
 /* Left Tools Sidebar */
 .editor-tools {
     width: 60px;
-    background-color: var(--color-white);
-    border-right: 1px solid var(--border-color);
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-sm);
+    padding: 8px;
 }
 
 .tool-button {
@@ -150,6 +150,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    background-color: #f5ebe0;
+    /* Skin color */
 }
 
 .editor-navbar {
@@ -194,11 +196,13 @@
 
 .editor-canvas-area {
     flex: 1;
-    background-color: #e5e7eb;
+    background-color: #f5ebe0;
+    /* Skin color */
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: auto;
+    overflow: hidden;
+    position: relative;
 }
 
 .editor-footer {

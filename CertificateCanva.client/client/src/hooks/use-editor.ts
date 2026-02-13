@@ -1,5 +1,5 @@
 import * as fabric from "fabric";
-import { useCallback, useState, useMemo, useRef } from "react";
+import { useCallback, useState, useMemo, useRef, useEffect } from "react";
 
 import type {
     Editor,
@@ -135,13 +135,21 @@ const buildEditor = ({
 
     const center = (object: fabric.FabricObject) => {
         const workspace = getWorkspace();
-        const center = workspace?.getCenterPoint();
+        const workspaceCenter = workspace?.getCenterPoint();
 
-        if (!center) return;
+        if (!workspaceCenter) return;
 
-        canvas.viewportCenterObject(object);
-        // Manual adjustment if workspace is not at canvas center
-        // For now simple center is fine as workspace is centered in init
+        object.set({
+            left: workspaceCenter.x,
+            top: workspaceCenter.y,
+            originX: 'center',
+            originY: 'center',
+            // @ts-ignore
+            selectable: true,
+            hasControls: true,
+        });
+
+        canvas.renderAll();
     };
 
     const addToCanvas = (object: fabric.FabricObject) => {
@@ -231,8 +239,16 @@ const buildEditor = ({
             ).then((image) => {
                 const workspace = getWorkspace();
 
-                image.scaleToWidth(workspace?.width || 0);
-                image.scaleToHeight(workspace?.height || 0);
+                const workspaceWidth = workspace?.width || 0;
+                const workspaceHeight = workspace?.height || 0;
+
+                // Scale image to 40% of workspace size while maintaining aspect ratio
+                const scale = Math.min(
+                    (workspaceWidth * 0.4) / image.width,
+                    (workspaceHeight * 0.4) / image.height
+                );
+
+                image.scale(scale);
 
                 addToCanvas(image);
             });
@@ -413,7 +429,6 @@ const buildEditor = ({
         changeStrokeColor: (value: string) => {
             setStrokeColor(value);
             canvas.getActiveObjects().forEach((object) => {
-                // Text types don't have stroke usually but we can set fill
                 if (isTextType(object.type)) {
                     object.set({ fill: value });
                     return;
@@ -610,8 +625,8 @@ export const useEditor = ({
     saveCallback,
 }: EditorHookProps) => {
     const initialState = useRef(defaultState);
-    const initialWidth = useRef(defaultWidth);
-    const initialHeight = useRef(defaultHeight);
+    const initialWidth = useRef(defaultWidth || 1912);
+    const initialHeight = useRef(defaultHeight || 1080);
 
     const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
     const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -668,6 +683,13 @@ export const useEditor = ({
         canvasHistory,
         setHistoryIndex,
     });
+
+    // Ensure autoZoom runs for new canvases
+    useEffect(() => {
+        if (canvas && !initialState.current) {
+            autoZoom();
+        }
+    }, [canvas, autoZoom]);
 
     const editor = useMemo(() => {
         if (canvas) {
@@ -741,11 +763,15 @@ export const useEditor = ({
                 fill: "white",
                 selectable: false,
                 hasControls: false,
+                stroke: "#e5e7eb",
+                strokeWidth: 2,
                 shadow: new fabric.Shadow({
-                    color: "rgba(0,0,0,0.8)",
-                    blur: 5,
+                    color: "rgba(0,0,0,0.15)",
+                    blur: 10,
                 }),
             });
+
+            initialCanvas.backgroundColor = "transparent";
 
             initialCanvas.setDimensions({
                 width: initialContainer.offsetWidth,
@@ -764,6 +790,11 @@ export const useEditor = ({
             );
             canvasHistory.current = [currentState];
             setHistoryIndex(0);
+
+            // Manual trigger for first render
+            setTimeout(() => {
+                initialCanvas.renderAll();
+            }, 100);
         },
         [
             canvasHistory,

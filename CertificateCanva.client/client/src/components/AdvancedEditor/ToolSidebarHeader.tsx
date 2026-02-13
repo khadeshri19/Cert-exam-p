@@ -8,12 +8,12 @@ export const ToolSidebarHeader = ({
     description
 }: ToolSidebarHeaderProps) => {
     return (
-        <div className="p-4 border-b border-gray-200 space-y-1">
-            <h3 className="text-sm font-semibold text-gray-800">
+        <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937', margin: '0 0 4px 0' }}>
                 {title}
             </h3>
             {description && (
-                <p className="text-xs text-gray-500">
+                <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>
                     {description}
                 </p>
             )}

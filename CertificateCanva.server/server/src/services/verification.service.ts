@@ -1,27 +1,25 @@
 import pool from '../config/db';
 import { HttpError } from '../middlewares/error.middleware';
 
-// Verify certificate by verification code (PUBLIC - no auth required)
-export const verifyCertificate = async (verificationCode: string) => {
+// Verify certificate by certificate_id (PUBLIC)
+export const verifyCertificate = async (certificateId: string) => {
     const result = await pool.query(
         `SELECT 
-      c.id as certificate_id,
-      c.title,
-      c.author_name,
-      c.is_authorized,
-      c.authorized_at,
-      c.issued_by,
-      c.created_at,
-      vl.verification_code,
-      vl.is_active,
-      vl.expires_at,
+      cs.id as canvas_id,
+      cs.title,
+      cs.holder_name as author_name,
+      cs.is_authorized,
+      ca.authorized_at,
+      cs.organization_name as issued_by,
+      cs.created_at,
+      cs.certificate_id as verification_code,
       u.name as user_name,
       u.email as user_email
-     FROM verification_links vl
-     JOIN certificates c ON vl.certificate_id = c.id
-     JOIN users u ON c.user_id = u.id
-     WHERE vl.verification_code = $1`,
-        [verificationCode]
+     FROM canvas_sessions cs
+     JOIN users u ON cs.user_id = u.id
+     LEFT JOIN certificate_authorizations ca ON ca.canvas_id = cs.id
+     WHERE cs.certificate_id = $1`,
+        [certificateId]
     );
 
     if (result.rows.length === 0) {
@@ -34,30 +32,12 @@ export const verifyCertificate = async (verificationCode: string) => {
 
     const cert = result.rows[0];
 
-    // Check if link is active
-    if (!cert.is_active) {
-        return {
-            valid: false,
-            message: '❌ This certificate is NOT valid',
-            details: 'The verification link has been deactivated.',
-        };
-    }
-
-    // Check if link has expired
-    if (cert.expires_at && new Date(cert.expires_at) < new Date()) {
-        return {
-            valid: false,
-            message: '❌ This certificate is NOT valid',
-            details: 'The verification link has expired.',
-        };
-    }
-
     // Check if certificate is authorized
     if (!cert.is_authorized) {
         return {
             valid: false,
             message: '❌ This certificate is NOT valid',
-            details: 'This certificate has not been authorized.',
+            details: 'This certificate has not been authorized by an admin.',
         };
     }
 
@@ -70,30 +50,25 @@ export const verifyCertificate = async (verificationCode: string) => {
             author_name: cert.author_name,
             created_date: cert.created_at,
             authorized_date: cert.authorized_at,
-            issued_by: cert.issued_by || 'Sarvarth',
+            issued_by: cert.issued_by || 'Sarvarth Platform',
             verification_code: cert.verification_code,
         },
     };
 };
 
-// Get verification status for a canvas (user's own canvas)
+// Get verification status for a canvas
 export const getVerificationStatus = async (canvasSessionId: string, userId: string) => {
     const result = await pool.query(
         `SELECT 
       cs.id as canvas_id,
       cs.title as canvas_title,
-      cs.is_saved,
+      cs.certificate_id as verification_code,
       cs.is_authorized,
-      c.id as certificate_id,
-      c.title as certificate_title,
-      c.author_name,
-      c.is_authorized as certificate_authorized,
-      c.authorized_at,
-      vl.verification_code,
-      vl.is_active
+      cs.holder_name as author_name,
+      cs.certificate_title,
+      ca.authorized_at
      FROM canvas_sessions cs
-     LEFT JOIN certificates c ON c.canvas_session_id = cs.id
-     LEFT JOIN verification_links vl ON vl.certificate_id = c.id
+     LEFT JOIN certificate_authorizations ca ON ca.canvas_id = cs.id
      WHERE cs.id = $1 AND cs.user_id = $2`,
         [canvasSessionId, userId]
     );
@@ -104,18 +79,10 @@ export const getVerificationStatus = async (canvasSessionId: string, userId: str
 
     const data = result.rows[0];
 
-    if (!data.is_saved) {
-        return {
-            has_verification: false,
-            message: 'Canvas not saved yet. Save to generate verification link.',
-            can_export: false,
-        };
-    }
-
     if (!data.verification_code) {
         return {
             has_verification: false,
-            message: 'No verification link generated. Please save the canvas.',
+            message: 'No certificate generated yet. Save the canvas to generate a unique ID.',
             can_export: false,
         };
     }
@@ -124,7 +91,7 @@ export const getVerificationStatus = async (canvasSessionId: string, userId: str
         has_verification: true,
         verification_code: data.verification_code,
         verification_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify/${data.verification_code}`,
-        is_authorized: data.certificate_authorized,
+        is_authorized: data.is_authorized,
         author_name: data.author_name,
         title: data.certificate_title,
         authorized_at: data.authorized_at,

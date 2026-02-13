@@ -21,7 +21,6 @@ export const createUser = async (data: {
 }) => {
   const { name, username, email, password, role_id } = data;
 
-  // If creating admin, validate domain
   if (role_id === 1) {
     if (!validateAdminDomain(email)) {
       throw new HttpError(
@@ -31,7 +30,6 @@ export const createUser = async (data: {
     }
   }
 
-  // Check if email exists
   const existingEmail = await pool.query(
     'SELECT id FROM users WHERE email = $1',
     [email]
@@ -40,7 +38,6 @@ export const createUser = async (data: {
     throw new HttpError('Email already exists', 409);
   }
 
-  // Check if username exists
   const existingUsername = await pool.query(
     'SELECT id FROM users WHERE username = $1',
     [username]
@@ -61,7 +58,7 @@ export const createUser = async (data: {
   return result.rows[0];
 };
 
-// Get all users (admin only)
+// Get all users
 export const getAllUsers = async () => {
   const result = await pool.query(`
     SELECT u.id, u.name, u.username, u.email, u.role_id, r.role_name, u.is_active, u.created_at, u.updated_at
@@ -72,7 +69,7 @@ export const getAllUsers = async () => {
   return result.rows;
 };
 
-// Get user by ID (admin only)
+// Get user by ID
 export const getUserById = async (id: string) => {
   const result = await pool.query(
     `SELECT u.id, u.name, u.username, u.email, u.role_id, r.role_name, u.is_active, u.created_at, u.updated_at
@@ -89,7 +86,7 @@ export const getUserById = async (id: string) => {
   return result.rows[0];
 };
 
-// Update user (admin only)
+// Update user
 export const updateUser = async (
   id: string,
   data: {
@@ -103,7 +100,6 @@ export const updateUser = async (
 ) => {
   const user = await getUserById(id);
 
-  // If changing to admin role, validate domain
   if (data.role_id === 1) {
     const emailToCheck = data.email || user.email;
     if (!validateAdminDomain(emailToCheck)) {
@@ -114,7 +110,6 @@ export const updateUser = async (
     }
   }
 
-  // Check email uniqueness if changing
   if (data.email && data.email !== user.email) {
     const existing = await pool.query(
       'SELECT id FROM users WHERE email = $1 AND id != $2',
@@ -125,7 +120,6 @@ export const updateUser = async (
     }
   }
 
-  // Check username uniqueness if changing
   if (data.username && data.username !== user.username) {
     const existing = await pool.query(
       'SELECT id FROM users WHERE username = $1 AND id != $2',
@@ -166,7 +160,7 @@ export const updateUser = async (
   return result.rows[0];
 };
 
-// Delete user (admin only)
+// Delete user
 export const deleteUser = async (id: string, adminId: string) => {
   if (id === adminId) {
     throw new HttpError('Cannot delete your own account', 400);
@@ -184,105 +178,60 @@ export const deleteUser = async (id: string, adminId: string) => {
   return { message: 'User deleted successfully' };
 };
 
-// Get all canvas sessions (admin only - view mode)
+// Get all canvas sessions
 export const getAllCanvasSessions = async () => {
   const result = await pool.query(`
     SELECT 
-      cs.id, cs.title, cs.user_id, cs.is_saved, cs.is_authorized, 
-      cs.is_currently_active, cs.session_start, cs.last_active,
+      cs.id, cs.title, cs.user_id, cs.is_authorized, 
       cs.width, cs.height, cs.created_at, cs.updated_at,
       u.name as user_name, u.email as user_email
     FROM canvas_sessions cs
     JOIN users u ON cs.user_id = u.id
-    ORDER BY cs.last_active DESC
+    ORDER BY cs.updated_at DESC
   `);
   return result.rows;
 };
 
-// Get canvas activity logs (admin only)
-export const getCanvasActivityLogs = async (canvasSessionId?: string) => {
-  let query = `
-    SELECT 
-      cal.id, cal.canvas_session_id, cal.user_id, cal.action_type, 
-      cal.action_data, cal.created_at,
-      u.name as user_name, cs.title as canvas_title
-    FROM canvas_activity_logs cal
-    JOIN users u ON cal.user_id = u.id
-    JOIN canvas_sessions cs ON cal.canvas_session_id = cs.id
-  `;
-
-  const params: any[] = [];
-
-  if (canvasSessionId) {
-    query += ' WHERE cal.canvas_session_id = $1';
-    params.push(canvasSessionId);
-  }
-
-  query += ' ORDER BY cal.created_at DESC LIMIT 100';
-
-  const result = await pool.query(query, params);
-  return result.rows;
-};
-
-// Get active canvas sessions (admin only - real-time view)
-export const getActiveCanvasSessions = async () => {
-  const result = await pool.query(`
-    SELECT 
-      cs.id, cs.title, cs.user_id, cs.is_saved, cs.is_authorized,
-      cs.session_start, cs.last_active, cs.is_currently_active,
-      u.name as user_name, u.email as user_email,
-      CASE 
-        WHEN cs.last_active > NOW() - INTERVAL '5 minutes' THEN true
-        ELSE false
-      END as is_active
-    FROM canvas_sessions cs
-    JOIN users u ON cs.user_id = u.id
-    WHERE cs.is_currently_active = true
-    ORDER BY cs.last_active DESC
-  `);
-  return result.rows;
-};
-
-// Get all certificates (admin only)
+// Get all certificates (Migrated to canvas_sessions)
 export const getAllCertificates = async () => {
   const result = await pool.query(`
     SELECT 
-      c.id, c.title, c.author_name, c.is_authorized, c.authorized_at,
-      c.issued_by, c.created_at,
+      cs.id, cs.title, cs.holder_name as author_name, cs.is_authorized, 
+      ca.authorized_at, cs.organization_name as issued_by, cs.created_at,
       cs.id as canvas_session_id, cs.title as canvas_title,
       u.name as user_name, u.email as user_email,
-      vl.verification_code
-    FROM certificates c
-    JOIN canvas_sessions cs ON c.canvas_session_id = cs.id
-    JOIN users u ON c.user_id = u.id
-    LEFT JOIN verification_links vl ON vl.certificate_id = c.id
-    ORDER BY c.created_at DESC
+      cs.certificate_id as verification_code
+    FROM canvas_sessions cs
+    JOIN users u ON cs.user_id = u.id
+    LEFT JOIN certificate_authorizations ca ON ca.canvas_id = cs.id
+    WHERE cs.certificate_id IS NOT NULL
+    ORDER BY cs.created_at DESC
   `);
   return result.rows;
 };
 
-// Get all verification links (admin only)
+// Get all verification links (Migrated to canvas_sessions)
 export const getAllVerificationLinks = async () => {
   const result = await pool.query(`
     SELECT 
-      vl.id, vl.verification_code, vl.is_active, vl.created_at, vl.expires_at,
-      c.id as certificate_id, c.title as certificate_title, c.author_name,
-      c.is_authorized,
+      cs.id, cs.certificate_id as verification_code, true as is_active, cs.created_at, 
+      cs.id as certificate_id, cs.title as certificate_title, cs.holder_name as author_name,
+      cs.is_authorized,
       u.name as user_name, u.email as user_email
-    FROM verification_links vl
-    JOIN certificates c ON vl.certificate_id = c.id
-    JOIN users u ON c.user_id = u.id
-    ORDER BY vl.created_at DESC
+    FROM canvas_sessions cs
+    JOIN users u ON cs.user_id = u.id
+    WHERE cs.certificate_id IS NOT NULL
+    ORDER BY cs.created_at DESC
   `);
   return result.rows;
 };
 
-// Get all uploaded files (admin only)
+// Get all uploaded files
 export const getAllUploadedFiles = async () => {
   const result = await pool.query(`
     SELECT 
-      uf.id, uf.file_name, uf.original_name, uf.file_url, uf.file_type,
-      uf.file_size, uf.mime_type, uf.uploaded_at,
+      uf.id, uf.file_name, uf.file_url, uf.file_type,
+      uf.file_size, uf.uploaded_at,
       u.name as user_name, u.email as user_email,
       cs.title as canvas_title
     FROM uploaded_files uf

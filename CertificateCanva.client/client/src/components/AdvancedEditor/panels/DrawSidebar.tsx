@@ -8,8 +8,6 @@ import { ToolSidebarHeader } from "../ToolSidebarHeader";
 import { ColorPicker } from "../ColorPicker";
 import { ScrollArea } from "../ScrollArea";
 
-import { cn } from "../../../lib/utils";
-
 interface DrawSidebarProps {
     editor: Editor | undefined;
     activeTool: ActiveTool;
@@ -39,18 +37,25 @@ export const DrawSidebar = ({
 
     return (
         <aside
-            className={cn(
-                "bg-white relative border-r border-gray-200 z-[40] w-[300px] h-full flex flex-col",
-                activeTool === "draw" ? "visible" : "hidden",
-            )}
+            style={{
+                display: activeTool === "draw" ? "flex" : "none",
+                backgroundColor: 'white',
+                position: 'relative',
+                borderRight: '1px solid #e5e7eb',
+                zIndex: 40,
+                width: '300px',
+                height: '100%',
+                flexDirection: 'column',
+                overflow: 'visible'
+            }}
         >
             <ToolSidebarHeader
                 title="Drawing mode"
                 description="Modify brush settings"
             />
             <ScrollArea>
-                <div className="p-4 space-y-6 border-b">
-                    <label className="text-sm font-medium">
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', borderBottom: '1px solid #f3f4f6' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 500 }}>
                         Brush width
                     </label>
                     <input
@@ -60,10 +65,10 @@ export const DrawSidebar = ({
                         step={1}
                         value={widthValue}
                         onChange={(e) => onWidthChange(parseInt(e.target.value))}
-                        className="w-full"
+                        style={{ width: '100%' }}
                     />
                 </div>
-                <div className="p-4 space-y-6">
+                <div style={{ padding: '16px' }}>
                     <ColorPicker
                         value={colorValue}
                         onChange={onColorChange}

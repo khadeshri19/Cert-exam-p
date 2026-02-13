@@ -14,10 +14,16 @@ import { Footer } from "./Footer";
 
 import { ShapeSidebar } from "./panels/ShapeSidebar";
 import { FillColorSidebar } from "./panels/FillColorSidebar";
+import { StrokeColorSidebar } from "./panels/StrokeColorSidebar";
+import { StrokeWidthSidebar } from "./panels/StrokeWidthSidebar";
+import { OpacitySidebar } from "./panels/OpacitySidebar";
+import { FontSidebar } from "./panels/FontSidebar";
+import { FilterSidebar } from "./panels/FilterSidebar";
 import { TextSidebar } from "./panels/TextSidebar";
 import { ImageSidebar } from "./panels/ImageSidebar";
 import { DrawSidebar } from "./panels/DrawSidebar";
 import { MetadataSidebar } from "./panels/MetadataSidebar";
+import { SettingsSidebar } from "./panels/SettingsSidebar";
 
 import '../../styles/pages/editor.css';
 
@@ -77,8 +83,8 @@ export const AdvancedEditor = ({ initialData, onSave }: EditorProps) => {
 
     const { init, editor } = useEditor({
         defaultState: initialData.json,
-        defaultWidth: initialData.width,
-        defaultHeight: initialData.height,
+        defaultWidth: initialData.width || 1912,
+        defaultHeight: initialData.height || 1080,
         clearSelectionCallback: onClearSelection,
         saveCallback: debouncedSave,
     });
@@ -163,6 +169,31 @@ export const AdvancedEditor = ({ initialData, onSave }: EditorProps) => {
                     activeTool={activeTool}
                     onChangeActiveTool={onChangeActiveTool}
                 />
+                <StrokeColorSidebar
+                    editor={editor}
+                    activeTool={activeTool}
+                    onChangeActiveTool={onChangeActiveTool}
+                />
+                <StrokeWidthSidebar
+                    editor={editor}
+                    activeTool={activeTool}
+                    onChangeActiveTool={onChangeActiveTool}
+                />
+                <OpacitySidebar
+                    editor={editor}
+                    activeTool={activeTool}
+                    onChangeActiveTool={onChangeActiveTool}
+                />
+                <FontSidebar
+                    editor={editor}
+                    activeTool={activeTool}
+                    onChangeActiveTool={onChangeActiveTool}
+                />
+                <FilterSidebar
+                    editor={editor}
+                    activeTool={activeTool}
+                    onChangeActiveTool={onChangeActiveTool}
+                />
                 <TextSidebar
                     editor={editor}
                     activeTool={activeTool}
@@ -174,6 +205,11 @@ export const AdvancedEditor = ({ initialData, onSave }: EditorProps) => {
                     onChangeActiveTool={onChangeActiveTool}
                 />
                 <DrawSidebar
+                    editor={editor}
+                    activeTool={activeTool}
+                    onChangeActiveTool={onChangeActiveTool}
+                />
+                <SettingsSidebar
                     editor={editor}
                     activeTool={activeTool}
                     onChangeActiveTool={onChangeActiveTool}
@@ -193,7 +229,18 @@ export const AdvancedEditor = ({ initialData, onSave }: EditorProps) => {
                     />
                 </div>
 
-                <div className="editor-canvas-area" style={{ position: 'relative' }}>
+                <div
+                    className="editor-canvas-area"
+                    style={{ position: 'relative' }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        const url = e.dataTransfer.getData("image_url");
+                        if (url && editor) {
+                            editor.addImage(url);
+                        }
+                    }}
+                >
                     <Toolbar
                         editor={editor}
                         activeTool={activeTool}
@@ -201,8 +248,7 @@ export const AdvancedEditor = ({ initialData, onSave }: EditorProps) => {
                         key={activeTool}
                     />
                     <div
-                        className="h-full w-full flex-1"
-                        style={{ height: '100%', width: '100%', overflow: 'hidden' }}
+                        style={{ height: '100%', width: '100%', flex: 1, overflow: 'hidden' }}
                         ref={containerRef}
                     >
                         <canvas ref={canvasRef} />
@@ -215,18 +261,20 @@ export const AdvancedEditor = ({ initialData, onSave }: EditorProps) => {
             </div>
 
             {/* Right Metadata */}
-            <div className="editor-metadata">
-                <MetadataSidebar
-                    editor={editor}
-                    activeTool={activeTool}
-                    onChangeActiveTool={onChangeActiveTool}
-                    metadata={metadata}
-                    onMetadataChange={setMetadata}
-                    certificateId={certificateId}
-                    onGenerate={handleGenerate}
-                    isSaving={isSaving}
-                />
-            </div>
+            {activeTool === "metadata" && (
+                <div className="editor-metadata" style={{ width: '300px', borderLeft: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', flexDirection: 'column' }}>
+                    <MetadataSidebar
+                        editor={editor}
+                        activeTool={activeTool}
+                        onChangeActiveTool={onChangeActiveTool}
+                        metadata={metadata}
+                        onMetadataChange={setMetadata}
+                        certificateId={certificateId}
+                        onGenerate={handleGenerate}
+                        isSaving={isSaving}
+                    />
+                </div>
+            )}
         </div>
     );
 };

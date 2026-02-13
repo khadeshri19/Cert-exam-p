@@ -15,8 +15,6 @@ export const useAutoResize = ({ canvas, container }: UseAutoResizeProps) => {
 
         canvas.setDimensions({ width, height });
 
-        const center = canvas.getCenterPoint();
-
         const zoomRatio = 0.85;
         const localWorkspace = canvas
             .getObjects()
@@ -33,7 +31,7 @@ export const useAutoResize = ({ canvas, container }: UseAutoResizeProps) => {
         const zoom = zoomRatio * scale;
 
         canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-        canvas.zoomToPoint(new fabric.Point(center.x, center.y), zoom);
+        // canvas.zoomToPoint(new fabric.Point(center.x, center.y), zoom); // Removed this as we'll set transform directly
 
         const workspaceCenter = localWorkspace.getCenterPoint();
         const viewportTransform = canvas.viewportTransform;
@@ -46,9 +44,11 @@ export const useAutoResize = ({ canvas, container }: UseAutoResizeProps) => {
             return;
         }
 
-        viewportTransform[4] = canvas.width / 2 - workspaceCenter.x * viewportTransform[0];
+        viewportTransform[0] = zoom;
+        viewportTransform[3] = zoom;
 
-        viewportTransform[5] = canvas.height / 2 - workspaceCenter.y * viewportTransform[3];
+        viewportTransform[4] = canvas.width / 2 - workspaceCenter.x * zoom;
+        viewportTransform[5] = canvas.height / 2 - workspaceCenter.y * zoom;
 
         canvas.setViewportTransform(viewportTransform);
 

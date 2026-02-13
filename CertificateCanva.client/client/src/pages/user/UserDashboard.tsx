@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { canvasApi } from '../../api';
 import Sidebar from '../../components/common/Sidebar';
+import { FileText, Plus } from 'lucide-react';
 import '../../styles/pages/dashboard.css';
 
 const UserDashboard: React.FC = () => {
@@ -50,14 +51,14 @@ const UserDashboard: React.FC = () => {
                                         onClick={() => navigate(`/canvas/${canvas.id}`)}
                                     >
                                         <div className="grid-item-image">
-                                            <span className="grid-item-placeholder">☁️</span>
+                                            <FileText style={{ width: '48px', height: '48px', color: '#94a3b8', strokeWidth: 1.5 }} />
                                         </div>
                                         <div className="grid-item-label">{canvas.title || 'Untitled'}</div>
                                     </div>
                                 ))}
                                 <div className="grid-item" onClick={handleCreate} style={{ cursor: 'pointer' }}>
                                     <div className="grid-item-image">
-                                        <span className="grid-item-placeholder">+</span>
+                                        <Plus style={{ width: '32px', height: '32px', color: '#94a3b8' }} />
                                     </div>
                                     <div className="grid-item-label">New Canvas</div>
                                 </div>
